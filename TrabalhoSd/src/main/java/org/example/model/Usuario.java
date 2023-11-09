@@ -18,7 +18,11 @@ public class Usuario implements Serializable {
     private Double saldo;
     private String token;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public Usuario(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public String getLogin() {
         return login;
