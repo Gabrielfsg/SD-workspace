@@ -19,9 +19,9 @@ class OffRmiRegistry extends Thread {
     }
 }
 
-public class Servidor extends UnicastRemoteObject implements BancoAPI {
+public class ServidorRMI extends UnicastRemoteObject implements BancoAPI {
 
-    private static final Logger logger = Logger.getLogger(Servidor.class.getName());
+    private static final Logger logger = Logger.getLogger(ServidorRMI.class.getName());
 
     public static void main(String[] args) {
 
@@ -29,16 +29,16 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         Runtime.getRuntime().addShutdownHook(new OffRmiRegistry());
 
         try {
-            Servidor servidor = new Servidor();
+            ServidorRMI servidorRMI = new ServidorRMI();
             try {
                 logger.info("Alocando registry criado. ");
                 java.rmi.registry.LocateRegistry.getRegistry(1099);
-                Naming.rebind("rmi://localhost/banco", servidor);
+                Naming.rebind("rmi://localhost/banco", servidorRMI);
 
             } catch (Exception e) {
                 logger.info("Registry atual falhou, criando novo registry. ");
                 java.rmi.registry.LocateRegistry.createRegistry(1099);
-                Naming.bind("rmi://localhost/banco", servidor);
+                Naming.bind("rmi://localhost/banco", servidorRMI);
             }
         } catch (RemoteException | AlreadyBoundException | MalformedURLException e) {
             System.out.println("Erro no servidor: " + e.getMessage());
@@ -47,7 +47,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
 
     }
 
-    public Servidor() throws RemoteException {
+    public ServidorRMI() throws RemoteException {
         super();
     }
 

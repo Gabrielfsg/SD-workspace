@@ -6,7 +6,7 @@ import org.jgroups.ReceiverAdapter;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 
-public class Banco extends ReceiverAdapter implements RequestHandler
+public class ServidorJBanco extends ReceiverAdapter implements RequestHandler
 {
 
     private JChannel canal;
@@ -20,7 +20,7 @@ public class Banco extends ReceiverAdapter implements RequestHandler
 
     private void iniciar() throws Exception{
 
-        canal =new JChannel("org/example/backend/config/banco.xml");
+        canal =new JChannel("org/example/backend/config/bancoConfig.xml");
 
         canal.setReceiver(this);
 

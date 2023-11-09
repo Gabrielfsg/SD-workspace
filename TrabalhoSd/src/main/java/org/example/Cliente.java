@@ -2,17 +2,18 @@ package org.example;
 
 import org.example.model.Usuario;
 
+import java.io.Serializable;
 import java.rmi.*;
 import java.util.Scanner;
 
-public class Cliente {
+public class Cliente implements Serializable {
 
     public static Scanner scanner = new Scanner(System.in);
     public static BancoAPI bancoAPI = null;
 
     public static void main(String[] args) {
         try {
-//                bancoAPI = (BancoAPI) Naming.lookup("rmi://localhost/banco");
+            bancoAPI = (BancoAPI) Naming.lookup("rmi://localhost/banco");
             primeiroMenu();
         } catch (Exception erro) {
             System.out.println("Erro ao iniciar o cliente: " + erro.getMessage());
