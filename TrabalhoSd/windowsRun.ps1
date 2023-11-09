@@ -1,3 +1,4 @@
+# ./windowsRun
 # Compila o projeto com o Maven
 mvn clean install
 

@@ -11,13 +11,13 @@ public class Cliente {
     public static BancoAPI bancoAPI = null;
 
     public static void main(String[] args) {
-            try {
+        try {
 //                bancoAPI = (BancoAPI) Naming.lookup("rmi://localhost/banco");
-                primeiroMenu();
-            } catch (Exception erro) {
-                System.out.println("Erro ao iniciar o cliente: " + erro.getMessage());
-                erro.printStackTrace();
-            }
+            primeiroMenu();
+        } catch (Exception erro) {
+            System.out.println("Erro ao iniciar o cliente: " + erro.getMessage());
+            erro.printStackTrace();
+        }
     }
 
     public static void primeiroMenu(){

@@ -70,4 +70,9 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     public String alterarDados(String login, String senha) throws RemoteException {
         return null;
     }
+
+    @Override
+    public String fazerTransferencia(Usuario usuario) throws RemoteException {
+        return null;
+    }
 }

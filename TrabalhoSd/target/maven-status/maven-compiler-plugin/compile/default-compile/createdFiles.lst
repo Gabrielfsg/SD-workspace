@@ -1,0 +1,5 @@
+org\example\BancoAPI.class
+org\example\OffRmiRegistry.class
+org\example\model\Usuario.class
+org\example\Cliente.class
+org\example\Servidor.class
