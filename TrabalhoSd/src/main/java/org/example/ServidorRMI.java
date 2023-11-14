@@ -62,7 +62,7 @@ public class ServidorRMI extends UnicastRemoteObject implements BancoAPI {
     }
 
     @Override
-    public Double consultarSaldo(String token) throws RemoteException {
+    public Double consultarSaldo(String login) throws RemoteException {
         return null;
     }
 

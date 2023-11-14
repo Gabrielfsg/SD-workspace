@@ -11,7 +11,7 @@ public interface BancoAPI extends Remote {
 
     String criarConta(String login, String senha) throws RemoteException;
 
-    Double consultarSaldo(String token) throws RemoteException;
+    Double consultarSaldo(String login) throws RemoteException;
 
     String alterarDados(String login, String senha) throws RemoteException;
 

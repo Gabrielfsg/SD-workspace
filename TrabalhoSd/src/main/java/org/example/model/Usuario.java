@@ -1,28 +1,25 @@
 package org.example.model;
 
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Usuario implements Serializable {
 
+    private static final String FILE_PATH = "src/main/java/org/example/model/usuario.json";
     private String login;
     private String senha;
 
     private Double saldo;
     private String token;
 
-    private final ObjectMapper objectMapper;
-
-    public Usuario(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    public Usuario() {}
 
     public String getLogin() {
         return login;
@@ -56,60 +53,60 @@ public class Usuario implements Serializable {
         this.saldo = saldo;
     }
 
+    public void salvarUsuario(List<Usuario> usuarios) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-    public void salvar(Usuario usuario) {
-        List<Usuario> usuarios = listarTodos();
-        usuarios.add(usuario);
-        salvarNoArquivo(usuarios);
-    }
+            File file = new File(FILE_PATH);
+            if (!file.exists()) {
+                throw new RuntimeException("Arquivo não existe.");
+            }
 
-    public void editarPorId(String id, Usuario novoUsuario) {
-        List<Usuario> usuarios = listarTodos();
-        Optional<Usuario> usuarioExistente = usuarios.stream().filter(u -> u.getLogin().equals(id)).findFirst();
+            // Salva a lista de usuários no arquivo JSON
+            objectMapper.writeValue(file, usuarios);
 
-        usuarioExistente.ifPresent(usuario -> {
-            usuario.setLogin(novoUsuario.getLogin());
-            usuario.setSenha(novoUsuario.getSenha());
-            usuario.setToken(novoUsuario.getToken());
-            usuario.setSaldo(novoUsuario.getSaldo());
-        });
-
-        salvarNoArquivo(usuarios);
-    }
-
-    public void excluirPorId(String id) {
-        List<Usuario> usuarios = listarTodos();
-        usuarios.removeIf(usuario -> usuario.getLogin().equals(id));
-        salvarNoArquivo(usuarios);
-    }
-
-    public Optional<Usuario> buscarPorId(String id) {
-        List<Usuario> usuarios = listarTodos();
-        return usuarios.stream().filter(usuario -> usuario.getLogin().equals(id)).findFirst();
+            System.out.println("Usuários salvos com sucesso no arquivo JSON.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public List<Usuario> listarTodos() {
-        String filePath = "org/example/backend/database/usuario.json";
         try {
-            File file = new File(filePath);
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            File file = new File(FILE_PATH);
             if (!file.exists()) {
-                file.createNewFile();
-                return new ArrayList<>();
-            } else {
-                return objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Usuario.class));
+                throw new RuntimeException("Arquivo não existe.");
             }
+            List<Usuario> usuarios = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Usuario.class));
+            return usuarios;
         } catch (IOException e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
-    private void salvarNoArquivo(List<Usuario> usuarios) {
-        String filePath = "org/example/backend/database/usuario.json";
-        try {
-            objectMapper.writeValue(new File(filePath), usuarios);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Usuario buscarUsuarioPorLogin(String login){
+        List<Usuario> usuarios = listarTodos();
+        for (Usuario usuario : usuarios) {
+            if (usuario.getLogin().equals(login)) {
+                return usuario;
+            }
         }
+        return null;
     }
+
+    public Double consultarSaldo(String login){
+        List<Usuario> usuarios = listarTodos();
+        for (Usuario usuario : usuarios) {
+            if (usuario.getLogin().equals(login)) {
+                return usuario.getSaldo();
+            }
+        }
+        return null;
+    }
+
 }
