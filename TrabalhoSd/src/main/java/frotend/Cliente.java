@@ -1,6 +1,8 @@
+package frotend;
+
 import backend.BancoAPI;
 import comon.ConfiguracoesMulticast;
-import model.Usuario;
+import comon.model.Usuario;
 
 import java.io.IOException;
 import java.io.Serializable;

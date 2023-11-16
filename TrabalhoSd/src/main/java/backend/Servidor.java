@@ -1,7 +1,7 @@
 package backend;
 
 import comon.RMIServer;
-import model.Usuario;
+import comon.model.Usuario;
 import backend.servidor.ClusterServidores;
 import org.jgroups.JChannel;
 

@@ -1,6 +1,6 @@
 package backend;
 
-import model.Usuario;
+import comon.model.Usuario;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

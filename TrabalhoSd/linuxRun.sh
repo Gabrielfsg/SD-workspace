@@ -1,7 +1,7 @@
 #!/bin/bash
 
 javac BancoAPI.java
-javac Cliente.java
+javac frotend.Cliente.java
 javac Servidor.java
 
 
@@ -15,4 +15,4 @@ xterm -hold -e 'java Servidor' &
 
 sleep 2
 
-xterm -hold -e 'java Cliente' &
+xterm -hold -e 'java frotend.Cliente' &

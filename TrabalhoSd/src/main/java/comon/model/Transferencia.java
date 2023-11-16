@@ -1,11 +1,11 @@
-package model;
+package comon.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Transferencia implements Serializable {
 
-    private static final String FILE_PATH = "src/main/java/org/example/model/transferencias.json";
+    private static final String FILE_PATH = "src/main/java/org/example/comon.model/transferencias.json";
     String contaRemetente;
     String contaDestino;
     Double valor;

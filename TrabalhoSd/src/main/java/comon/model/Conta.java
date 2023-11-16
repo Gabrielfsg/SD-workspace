@@ -1,4 +1,4 @@
-package model;
+package comon.model;
 
 import java.io.Serializable;
 

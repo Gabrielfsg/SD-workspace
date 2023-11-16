@@ -1,4 +1,4 @@
-import model.Usuario;
+import comon.model.Usuario;
 
 public class TesteApi {
     public static void main(String[] args) {
