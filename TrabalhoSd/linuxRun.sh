@@ -1,18 +1,26 @@
 #!/bin/bash
 
-javac BancoAPI.java
-javac frotend.Cliente.java
-javac Servidor.java
+if [[ "$@" =~ "-h" ]]; then
+    echo "-r ---- Reconstroi o projeto novamente com o maven"
+    echo "-c ---- Inicia somente o cliente"
+    echo "-s ---- Inicia somente o servidor"
+    echo "Podem ser usados em conjuntos, se -c ou -s nao forem passados, o cliente e o servidor sera iniciado "
+    exit
+fi
 
+if [[ ! -d "./target" || "$1" == "-r" ]]; #Verifica se existe a pasta target ou se o usuario passou uma flag de rebuild para buildar o projeto
+  then
+    mvn clean install
+fi
 
-killall -9 rmiregistry
-rmiregistry 1099 &
-
-xterm -hold -e 'java Servidor' &
-## OU
-## execute o servidor da aplicação, que irá consultar o (servidor de) Registro RMI no IP informado
-# xterm -hold -e 'java -Djava.rmi.server.hostname=172.22.70.30 CalculadoraServer' &
-
-sleep 2
-
-xterm -hold -e 'java frotend.Cliente' &
+if [[ "$@" =~ "-s" ]];
+    then
+    xterm -hold -e java -jar target/server.jar &
+elif [[ "$@" =~ "-c" ]];
+    then
+    xterm -hold -e java -jar target/cliente.jar &
+else
+    xterm -hold -e java -jar target/server.jar &
+    sleep 2
+    xterm -hold -e java -jar target/cliente.jar &
+fi
