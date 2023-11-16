@@ -1,6 +1,6 @@
-package org.example;
+package backend;
 
-import org.example.model.Usuario;
+import model.Usuario;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

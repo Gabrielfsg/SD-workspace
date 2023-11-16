@@ -1,0 +1,29 @@
+
+<!--
+  Default stack using IP multicasting. It is similar to the "udp"
+  stack in stacks.xml, but doesn't use streaming state transfer and flushing
+  author: Bela Ban
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:org:jgroups"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+    <!--
+    <UDP />
+    <PING               timeout="200" num_initial_members="4"  />
+    -->
+    <UDP                ip_mcast="false"                        />
+    <BPING              dest="255.255.255.224" bind_port="8555" />
+
+    <FD_SOCK            suspect_msg_interval="500"              />
+    <FD                 timeout="300"  max_tries="3"            />
+    <VERIFY_SUSPECT     num_msgs="1" timeout="150"              />
+    
+    <pbcast.NAKACK2/>
+    <tom.TOA/>
+    <UNICAST3/>
+    <pbcast.STABLE      desired_avg_gossip="5000"               />
+    <pbcast.GMS/>
+    <SEQUENCER />
+    
+</config>

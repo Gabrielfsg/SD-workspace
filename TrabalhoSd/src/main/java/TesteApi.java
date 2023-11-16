@@ -1,6 +1,4 @@
-package org.example;
-
-import org.example.model.Usuario;
+import model.Usuario;
 
 public class TesteApi {
     public static void main(String[] args) {

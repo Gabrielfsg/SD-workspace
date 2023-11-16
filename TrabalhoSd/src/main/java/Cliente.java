@@ -1,8 +1,12 @@
-package org.example;
+import backend.BancoAPI;
+import comon.ConfiguracoesMulticast;
+import model.Usuario;
 
-import org.example.model.Usuario;
-
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.rmi.*;
 import java.util.Scanner;
 
@@ -13,7 +17,11 @@ public class Cliente implements Serializable {
 
     public static void main(String[] args) {
         try {
-            bancoAPI = (BancoAPI) Naming.lookup("rmi://localhost/banco");
+            String addr = null;
+            while (addr == null) {
+                addr = obterHostServidor();
+            }
+            bancoAPI = (BancoAPI) Naming.lookup(addr);
             primeiroMenu();
         } catch (Exception erro) {
             System.out.println("Erro ao iniciar o cliente: " + erro.getMessage());
@@ -21,7 +29,7 @@ public class Cliente implements Serializable {
         }
     }
 
-    public static void primeiroMenu(){
+    public static void primeiroMenu() {
         int opcao = 0;
         String resp = "";
         String login = "";
@@ -118,5 +126,49 @@ public class Cliente implements Serializable {
         System.out.println(login);
         System.out.println(senha);
         return "";
+    }
+
+    public static String obterHostServidor() {
+
+        MulticastSocket socket = null;
+        InetAddress addr = null;
+        String rmiAddr = null;
+
+        try {
+            socket = new MulticastSocket(ConfiguracoesMulticast.port);
+            addr = InetAddress.getByName(ConfiguracoesMulticast.ip);
+            socket.joinGroup(addr);
+
+            byte[] bufferSend = ConfiguracoesMulticast.TOKEN_COORDENADOR.getBytes();
+            DatagramPacket pedido = new DatagramPacket(bufferSend, bufferSend.length, addr, ConfiguracoesMulticast.port);
+
+            while (true) {
+                System.out.println("Pedindo ip coordenador");
+                socket.send(pedido);
+                byte[] buffer = new byte[256];
+                DatagramPacket resposta = new DatagramPacket(buffer, buffer.length, addr, ConfiguracoesMulticast.port);
+                socket.receive(resposta);
+                String msg = new String(resposta.getData(), 0, resposta.getLength());
+                System.out.println("resposta " + msg);
+
+                if(!ConfiguracoesMulticast.TOKEN_COORDENADOR.equals(msg)){
+                    rmiAddr = msg;
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+
+        } catch (Exception e) {
+            System.out.println("Erro ao receber stub: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                socket.leaveGroup(addr);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            socket.close();
+        }
+        return rmiAddr;
     }
 }
