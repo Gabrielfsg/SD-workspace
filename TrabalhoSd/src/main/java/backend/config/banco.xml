@@ -7,4 +7,11 @@
     <pbcast.NAKACK2 />
     <pbcast.GMS/>
     <pbcast.STATE_TRANSFER />
+    <FD_SOCK/>
+    <FD_ALL/>
+    <tom.TOA/>
+    <UNICAST3/>
+    <pbcast.STABLE/>
+    <SEQUENCER />
+    <CENTRAL_LOCK/>
 </config>

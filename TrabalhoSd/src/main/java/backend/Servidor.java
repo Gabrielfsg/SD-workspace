@@ -1,12 +1,10 @@
 package backend;
 
 import backend.services.UsuarioService;
+import backend.servidor.ClusterServidores;
 import comon.RMIServer;
 import comon.model.Usuario;
-import backend.servidor.ClusterServidores;
 import org.jgroups.JChannel;
-import org.jgroups.blocks.MessageDispatcher;
-import org.jgroups.blocks.locking.LockService;
 
 import java.rmi.RemoteException;
 import java.rmi.server.*;
@@ -14,14 +12,11 @@ import java.rmi.server.*;
 
 public class Servidor extends UnicastRemoteObject implements BancoAPI {
 
-
+    private RMIServer rmiServer;
 
     public Servidor() throws RemoteException {
         super();
-        //start();
     }
-
-
 
     public static void iniciaRegistroRMI() {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -32,12 +27,14 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         }));
     }
 
+    public static void main(String[] args) {
+        Servidor.iniciaRegistroRMI();
+        ClusterServidores servidor = new ClusterServidores();
+        servidor.start();
+    }
 
-
-    public void bancoServer() throws Exception {
-
-        RMIServer rmiServer = new RMIServer();
-
+    public void bancoServerRmiStart() {
+        this.rmiServer.start();
     }
 
     @Override
