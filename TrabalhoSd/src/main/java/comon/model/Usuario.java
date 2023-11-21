@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Usuario implements Serializable {
 
-    private static final String FILE_PATH = "src/main/java/org/example/comon.model/usuario.json";
+    private static final String FILE_PATH = "TrabalhoSd/src/main/java/comon/model/usuario.json";
     private String login;
     private String senha;
 

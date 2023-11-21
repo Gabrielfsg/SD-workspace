@@ -33,7 +33,7 @@ public class Cliente implements Serializable {
 
     public static void primeiroMenu() {
         int opcao = 0;
-        String resp = "";
+        Usuario resp;
         String login = "";
         String senha = "";
 
@@ -102,7 +102,7 @@ public class Cliente implements Serializable {
         }
     }
 
-    public static String login(String login, String senha){
+    public static Usuario login(String login, String senha) {
         System.out.println("### LOGIN ### \n");
 
         System.out.println("Entre com o login: ");
@@ -110,13 +110,21 @@ public class Cliente implements Serializable {
 
         System.out.println("Entre com a senha: ");
         senha = scanner.nextLine();
-
-        System.out.println(login);
-        System.out.println(senha);
-        return "";
+        try {
+            return bancoAPI.fazerLogin(login, senha);
+        } catch (IOException e) {
+            System.out.println("ERRO: Tentando novamente ");
+            try {
+                return bancoAPI.fazerLogin(login, senha);
+            } catch (RemoteException ex) {
+                System.out.println("Houve um erro contate o administrador " + ex.getMessage());
+            }
+        }
+        return new Usuario();
     }
 
-    public static String criarConta(String login, String senha){
+
+    public static Usuario criarConta(String login, String senha){
         System.out.println("### CRIAR CONTA ### \n");
 
         System.out.println("Entre com o login: ");
@@ -127,7 +135,7 @@ public class Cliente implements Serializable {
 
         System.out.println(login);
         System.out.println(senha);
-        return "";
+        return null;
     }
 
     public static String obterHostServidor() {
