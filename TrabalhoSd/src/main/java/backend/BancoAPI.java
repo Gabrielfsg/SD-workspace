@@ -1,5 +1,6 @@
 package backend;
 
+import comon.model.Transferencia;
 import comon.model.Usuario;
 
 import java.rmi.Remote;
@@ -9,11 +10,11 @@ public interface BancoAPI extends Remote {
 
     Usuario fazerLogin(String login, String senha) throws RemoteException;
 
-    String criarConta(String login, String senha) throws RemoteException;
+    Usuario criarConta(String login, String senha) throws RemoteException;
 
     Double consultarSaldo(String login) throws RemoteException;
 
-    String alterarDados(String login, String senha) throws RemoteException;
+    Usuario alterarSenha(String login, String senha) throws RemoteException;
 
-    String fazerTransferencia(Usuario usuario) throws RemoteException;
+    void fazerTransferencia(Transferencia transferencia) throws RemoteException;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Usuario implements Serializable {
 
-    private static final String FILE_PATH = "TrabalhoSd/src/main/java/comon/model/usuario.json";
+    private static final String FILE_PATH = "usuario.json";
     private String login;
     private String senha;
 
@@ -52,7 +52,7 @@ public class Usuario implements Serializable {
         this.saldo = saldo;
     }
 
-    public void salvarUsuario(List<Usuario> usuarios) {
+    public void salvarUsuario(Usuario usuario, List<Usuario> usuarios) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -62,6 +62,17 @@ public class Usuario implements Serializable {
                 throw new RuntimeException("Arquivo não existe.");
             }
 
+            if (usuarios.size() > 0){
+                usuarios.forEach(usuario1 -> {
+                    if (usuario1.getLogin().equals(usuario.getLogin())){
+                        usuario1.setSenha(usuario.getSenha());
+                        usuario1.setSaldo(usuario.getSaldo());
+                    }
+                });
+            } else {
+                usuarios = listarTodos();
+                usuarios.add(usuario);
+            }
             // Salva a lista de usuários no arquivo JSON
             objectMapper.writeValue(file, usuarios);
 
@@ -83,7 +94,6 @@ public class Usuario implements Serializable {
             List<Usuario> usuarios = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Usuario.class));
             return usuarios;
         } catch (IOException e) {
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }
@@ -93,16 +103,6 @@ public class Usuario implements Serializable {
         for (Usuario usuario : usuarios) {
             if (usuario.getLogin().equals(login)) {
                 return usuario;
-            }
-        }
-        return null;
-    }
-
-    public Double consultarSaldo(String login){
-        List<Usuario> usuarios = listarTodos();
-        for (Usuario usuario : usuarios) {
-            if (usuario.getLogin().equals(login)) {
-                return usuario.getSaldo();
             }
         }
         return null;

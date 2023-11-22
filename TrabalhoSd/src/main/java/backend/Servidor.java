@@ -1,10 +1,11 @@
 package backend;
 
+import backend.services.TransferenciaService;
 import backend.services.UsuarioService;
 import backend.servidor.ClusterServidores;
 import comon.RMIServer;
+import comon.model.Transferencia;
 import comon.model.Usuario;
-import org.jgroups.JChannel;
 
 import java.rmi.RemoteException;
 import java.rmi.server.*;
@@ -44,22 +45,26 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     }
 
     @Override
-    public String criarConta(String login, String senha) throws RemoteException {
-        return null;
+    public Usuario criarConta(String login, String senha) throws RemoteException {
+        System.out.println("Criar Conta");
+        return UsuarioService.criarConta(login, senha);
     }
 
     @Override
     public Double consultarSaldo(String login) throws RemoteException {
-        return null;
+        System.out.println("Consultar Saldo");
+        return UsuarioService.consultarSaldo(login);
     }
 
     @Override
-    public String alterarDados(String login, String senha) throws RemoteException {
-        return null;
+    public Usuario alterarSenha(String login, String senha) throws RemoteException {
+        System.out.println("Alterar Dados");
+        return UsuarioService.alterarSenha(login, senha);
     }
 
     @Override
-    public String fazerTransferencia(Usuario usuario) throws RemoteException {
-        return null;
+    public void fazerTransferencia(Transferencia transferencia) throws RemoteException {
+        System.out.println("Fazer Tranferência");
+        TransferenciaService.fazerTransferencia(transferencia);
     }
 }

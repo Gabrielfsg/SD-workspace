@@ -1,0 +1,16 @@
+[ {
+  "login" : "Teste1",
+  "senha" : "1234",
+  "saldo" : 0.0,
+  "token" : ""
+}, {
+  "login" : "Teste2",
+  "senha" : "sigma132",
+  "saldo" : 300.0,
+  "token" : ""
+}, {
+  "login" : "Teste3",
+  "senha" : "1234",
+  "saldo" : 215.0,
+  "token" : ""
+} ]
