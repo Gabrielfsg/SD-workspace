@@ -16,7 +16,6 @@ public class Usuario implements Serializable {
     private String senha;
 
     private Double saldo;
-    private String token;
 
     public Usuario() {}
 
@@ -34,14 +33,6 @@ public class Usuario implements Serializable {
 
     public void setSenha(String senha) {
         this.senha = senha;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public Double getSaldo() {

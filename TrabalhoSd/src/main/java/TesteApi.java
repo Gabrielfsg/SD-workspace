@@ -15,7 +15,6 @@ public class TesteApi {
 //        usuario.setLogin("Teste3");
 //        usuario.setSenha("1234");
 //        usuario.setSaldo(15.0);
-//        usuario.setToken("");
 //        usuarios.add(usuario);
 //        usuarios.add(usuario);
 //        usuario.salvarUsuario(usuario, new ArrayList<>());
