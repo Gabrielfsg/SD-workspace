@@ -5,11 +5,11 @@ Prof. Evertho do IFM - Campos Formiga.
 
 Alunos:
 
- 1.Gabriel Fernandes Silva Gondim.
+• Gabriel Fernandes Silva Gondim.
 
-2. Daniel Antônio.
-   
-3. Luiz Otávio.
+• Daniel Antônio.
+
+• Luiz Otávio.
 
 ## Ferramentas
 O sistema utiliza a aplicacao de comunicação RMI, Multicast e JGroups.
