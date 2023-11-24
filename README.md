@@ -6,7 +6,9 @@ Prof. Evertho do IFM - Campos Formiga.
 Alunos:
 
 1.Gabriel Fernandes Silva Gondim.
+
 2. Daniel Antônio.
+   
 3. Luiz Otávio.
 
 ## Ferramentas
@@ -44,16 +46,22 @@ Abra um terminal e execute (para plataforma windows):
 
 • Prover alguma interface com o usuário (CLI ou GUI) para acesso rápido às funcionalidades do
 serviço;
+
 • Definição de um identificador único por conta no sistema, de maneira que um mesmo cliente seja
 corretamente identificado ao sair e retornar;
+
 • Cadastro de nova conta no sistema bancário sem duplicidade, conforme acordo dos membros do
 cluster (todos ou maioria);
+
 • Operação de transferência de valor entre contas bancárias (atente para a necessidade de acesso
 mutuamente exclusivo às duas contas envolvidas);
+
 • Operação de consulta ao saldo da conta, conforme acordo dos membros do cluster (primeira resposta
 ou maioria);
+
 • Operação de consulta ao extrato da conta, conforme acordo dos membros do cluster (primeira
 resposta ou maioria);
+
 • O valor do montante de dinheiro do banco (somatório do saldo de todas as contas) deve ser visível e
 consistente em todos os membros do cluster JGroups, para fins de auditoria;
 
@@ -63,14 +71,19 @@ consistente em todos os membros do cluster JGroups, para fins de auditoria;
 (ForkChannel) de comunicação para devidamente implementar a distribuição vertical (ex.: clusters
 “modelo”, “controle”, “visão”), segmentando as mensagens trocadas conforme a função de cada
 componente;
+
 • O sistema distribuído deve providenciar armazenamento em disco do estado do sistema (cadastros,
 movimentações, etc.) em memória secundária (persistente);
+
 • No reingresso de um membro ao cluster, deverá ser obtido o estado do sistema, ou seja, atualizações
 que ele possa não ter recebido enquanto estava desconectado;
+
 • O sistema deverá prover mecanismos de segurança, como criptografia das mensagens trocadas,
 autenticação dos usuários e autenticidade das solicitações.
+
 • No reingresso de um membro ao cluster, deverá ser obtido o estado do sistema, ou seja, atualizações
 que ele possa não ter recebido enquanto estava desconectado;
+
 • O sistema deverá prover mecanismos de segurança, como criptografia das mensagens trocadas,
 autenticação dos usuários e autenticidade das solicitações.
 
