@@ -5,7 +5,7 @@ Prof. Evertho do IFM - Campos Formiga.
 
 Alunos:
 
-1.Gabriel Fernandes Silva Gondim.
+ 1.Gabriel Fernandes Silva Gondim.
 
 2. Daniel Antônio.
    
