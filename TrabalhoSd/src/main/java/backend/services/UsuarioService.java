@@ -4,7 +4,8 @@ import comon.model.Saldo;
 import comon.model.Usuario;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import static comon.utils.Senha.*;
 
 public class UsuarioService {
 
@@ -12,7 +13,7 @@ public class UsuarioService {
         Usuario c = new Usuario();
         Usuario user = c.buscarUsuarioPorLogin(login);
         if (user != null) {
-            if (user.getSenha().equals(senha)) {
+            if (validarSenha(senha, user.getSenha(), user.getSalt())) {
                 System.out.println("Login realizado com sucesso: " + user.getLogin() + ", " + user.getSenha());
                 return user;
             }
@@ -25,9 +26,12 @@ public class UsuarioService {
     public static Usuario criarConta(String login, String senha) {
         if (!usuarioExistente(login)){
             Usuario usuario = new Usuario();
-            usuario.setSenha(senha);
+            String salt = gerarSalt();
+            String hashSenhaOriginal = gerarHash(senha, salt);
+            usuario.setSenha(hashSenhaOriginal);
             usuario.setLogin(login);
             usuario.setSaldo(1000.0);
+            usuario.setSalt(salt);
             usuario.salvarUsuario(usuario, new ArrayList<>());
             return usuario;
         } else {
@@ -50,7 +54,8 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario = usuario.buscarUsuarioPorLogin(login);
         if (usuario != null) {
-            usuario.setSenha(senha);
+            String hashSenhaOriginal = gerarHash(senha, usuario.getSalt());
+            usuario.setSenha(hashSenhaOriginal);
             usuario.salvarUsuario(usuario, usuario.listarTodos());
             return usuario;
         } else{

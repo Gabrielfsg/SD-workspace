@@ -10,6 +10,7 @@ import comon.model.Usuario;
 
 import java.rmi.RemoteException;
 import java.rmi.server.*;
+import java.util.List;
 
 
 public class Servidor extends UnicastRemoteObject implements BancoAPI {
@@ -58,5 +59,11 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     public Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException {
         System.out.println("Fazer Tranferência");
         return TransferenciaService.fazerTransferencia(transferencia);
+    }
+
+    @Override
+    public List<Transferencia> extrato(String login) throws RemoteException {
+        System.out.println("Buscar Extrato");
+        return TransferenciaService.extrato(login);
     }
 }

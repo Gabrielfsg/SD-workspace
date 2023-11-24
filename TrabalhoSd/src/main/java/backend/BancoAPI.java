@@ -6,6 +6,7 @@ import comon.model.Usuario;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 public interface BancoAPI extends Remote {
 
@@ -18,4 +19,6 @@ public interface BancoAPI extends Remote {
     Usuario alterarSenha(String login, String senha) throws RemoteException;
 
     Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException;
+
+    List<Transferencia> extrato(String login) throws RemoteException;
 }

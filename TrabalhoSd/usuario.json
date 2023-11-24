@@ -1,25 +1,11 @@
 [ {
-  "login" : "Teste1",
-  "senha" : "1234",
-  "saldo" : 0.0
-}, {
-  "login" : "Teste2",
-  "senha" : "sigma132",
-  "saldo" : 300.0
-}, {
-  "login" : "Teste3",
-  "senha" : "1234",
-  "saldo" : 215.0
-}, {
-  "login" : "teste5",
-  "senha" : "23232",
-  "saldo" : 1555.0
-}, {
-  "login" : "teste6",
-  "senha" : "xxt",
-  "saldo" : 800.0
-}, {
   "login" : "teste1",
-  "senha" : "1234",
-  "saldo" : 645.0
+  "senha" : "e23f400df8e87b0badddd7f81b3f67f59e8ed9c2b88761b4e15498435d5f676e",
+  "saldo" : 0.0,
+  "salt" : "7dd924c563155be03a113ec0e931d5fd"
+}, {
+  "login" : "teste2",
+  "senha" : "9d2005ef9e38c2994b7edb074d225ecbf56f66accadb4132f635159288f8b64c",
+  "saldo" : 2000.0,
+  "salt" : "c5484498ad69528988c860562e099789"
 } ]

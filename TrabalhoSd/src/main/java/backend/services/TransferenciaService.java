@@ -3,6 +3,8 @@ package backend.services;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 
+import java.util.List;
+
 public class TransferenciaService {
 
     public static Transferencia fazerTransferencia(Transferencia transferencia) {
@@ -28,5 +30,10 @@ public class TransferenciaService {
         } else {
             throw new RuntimeException("Erro: Destinatario ou Remetente inexistente.");
         }
+    }
+
+    public static List<Transferencia> extrato(String login){
+            Transferencia transferencia = new Transferencia();
+            return transferencia.listarTodosPorLogin(login);
     }
 }

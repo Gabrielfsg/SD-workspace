@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Transferencia implements Serializable {
 
@@ -91,6 +92,29 @@ public class Transferencia implements Serializable {
             return new ArrayList<>();
         }
     }
+
+    public List<Transferencia> listarTodosPorLogin(String login) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            objectMapper.registerModule(new JavaTimeModule());
+
+            File file = new File(FILE_PATH);
+            if (!file.exists()) {
+                throw new RuntimeException("Arquivo não existe.");
+            }
+            List<Transferencia> transferencias = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Transferencia.class));
+            List<Transferencia> transferenciasFiltradas = transferencias.stream()
+                    .filter(transferencia -> transferencia.getContaRemetente().equals(login))
+                    .collect(Collectors.toList());
+
+            return transferenciasFiltradas;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
 
 
 }

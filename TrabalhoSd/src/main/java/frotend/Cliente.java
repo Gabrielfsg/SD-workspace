@@ -14,6 +14,7 @@ import java.net.MulticastSocket;
 import java.rmi.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 public class Cliente implements Serializable {
@@ -92,7 +93,8 @@ public class Cliente implements Serializable {
                         "1.Consultar Saldo. \n" +
                         "2.Fazer Transferência. \n" +
                         "3.Alterar Senha. \n" +
-                        "4.Sair para tela de login. \n" +
+                        "4.Extrato. \n" +
+                        "5.Sair para tela de login. \n" +
                         "Escolha uma opção: ");
                 opcaoDig = scanner.nextLine();
                 opcao = Integer.parseInt(opcaoDig);
@@ -123,6 +125,18 @@ public class Cliente implements Serializable {
                         System.out.println("Senha Alterada com Sucesso.");
                     }
                 } else if (opcao == 4) {
+                    List<Transferencia> extrato = extrato(usuario.getLogin());
+                    extrato.forEach(transferencia -> {
+                        String dataHoraFormatada = transferencia.getData().format(formatter);
+                        System.out.println("################################################");
+                        System.out.println("Remetente: " + transferencia.getContaRemetente());
+                        System.out.println("Destinatario: " + transferencia.getContaDestino());
+                        System.out.println("Valor: " + transferencia.getValor());
+                        System.out.println("Data e Hora: " + dataHoraFormatada);
+                        System.out.println("################################################");
+                    });
+
+                } else if (opcao == 5) {
                     primeiroMenu();
                 } else {
                     System.out.println("Digite uma opção válida. ");
@@ -146,7 +160,7 @@ public class Cliente implements Serializable {
         try {
             return bancoAPI.fazerLogin(login, senha);
         } catch (IOException e) {
-            System.out.println("ERRO: Tentando novamente ");
+            System.out.println("ERRO: " + e.getMessage());
         } catch (RuntimeException r) {
             System.out.println("ERRO: " + r.getMessage());
         }
@@ -182,7 +196,7 @@ public class Cliente implements Serializable {
         try {
             return bancoAPI.alterarSenha(login, senha);
         } catch (IOException e) {
-            System.out.println("ERRO: Tentando novamente ");
+            System.out.println("ERRO: " + e.getMessage());
         } catch (RuntimeException r) {
             System.out.println("ERRO: " + r.getMessage());
         }
@@ -194,7 +208,17 @@ public class Cliente implements Serializable {
         try {
             return bancoAPI.consultarSaldo(login);
         } catch (IOException e) {
-            System.out.println("ERRO: Tentando novamente ");
+            System.out.println("ERRO: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public static List<Transferencia> extrato(String login) {
+        System.out.println("### Extrato ### \n");
+        try {
+            return bancoAPI.extrato(login);
+        } catch (IOException e) {
+            System.out.println("ERRO: " + e.getMessage());
         }
         return null;
     }
@@ -214,7 +238,7 @@ public class Cliente implements Serializable {
         try {
             return bancoAPI.fazerTransferencia(transferencia);
         } catch (IOException e) {
-            System.out.println("ERRO: Tentando novamente ");
+            System.out.println("ERRO: " + e.getMessage());
         } catch (RuntimeException r) {
             System.out.println("ERRO: " + r.getMessage());
         }
