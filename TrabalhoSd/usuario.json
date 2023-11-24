@@ -13,9 +13,13 @@
 }, {
   "login" : "teste5",
   "senha" : "23232",
-  "saldo" : 1200.0
+  "saldo" : 1555.0
 }, {
   "login" : "teste6",
   "senha" : "xxt",
   "saldo" : 800.0
+}, {
+  "login" : "teste1",
+  "senha" : "1234",
+  "saldo" : 645.0
 } ]
