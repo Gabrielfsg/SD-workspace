@@ -1,5 +1,6 @@
 package backend.services;
 
+import comon.model.Saldo;
 import comon.model.Usuario;
 
 import java.util.ArrayList;
@@ -24,19 +25,24 @@ public class UsuarioService {
     }
 
     public static Usuario criarConta(String login, String senha) {
-        Usuario usuario = new Usuario();
-        usuario.setSenha(senha);
-        usuario.setLogin(login);
-        usuario.setSaldo(1000.0);
-        usuario.salvarUsuario(usuario, new ArrayList<>());
-        return usuario;
+        if (!usuarioExistente(login)){
+            Usuario usuario = new Usuario();
+            usuario.setSenha(senha);
+            usuario.setLogin(login);
+            usuario.setSaldo(1000.0);
+            usuario.salvarUsuario(usuario, new ArrayList<>());
+            return usuario;
+        }
+        return null;
     }
 
-    public static Double consultarSaldo(String login){
+    public static Saldo consultarSaldo(String login){
         Usuario usuario = new Usuario();
         usuario = usuario.buscarUsuarioPorLogin(login);
         if (usuario != null){
-            return usuario.getSaldo();
+            Saldo saldo = new Saldo();
+            saldo.setSaldo(usuario.getSaldo());
+            return saldo;
         }
         return null;
     }
@@ -44,8 +50,20 @@ public class UsuarioService {
     public static Usuario alterarSenha(String login, String senha){
         Usuario usuario = new Usuario();
         usuario = usuario.buscarUsuarioPorLogin(login);
-        usuario.setSenha(senha);
-        usuario.salvarUsuario(usuario, usuario.listarTodos());
-        return usuario;
+        if (usuario != null) {
+            usuario.setSenha(senha);
+            usuario.salvarUsuario(usuario, usuario.listarTodos());
+            return usuario;
+        }
+            return null;
+    }
+
+    private static boolean usuarioExistente(String login){
+        Usuario usuario = new Usuario();
+        usuario = usuario.buscarUsuarioPorLogin(login);
+        if (usuario != null){
+            return true;
+        }
+        return false;
     }
 }

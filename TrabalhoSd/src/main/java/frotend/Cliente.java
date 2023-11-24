@@ -2,6 +2,8 @@ package frotend;
 
 import backend.BancoAPI;
 import comon.ConfiguracoesMulticast;
+import comon.model.Saldo;
+import comon.model.Transferencia;
 import comon.model.Usuario;
 
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class Cliente implements Serializable {
@@ -49,11 +53,21 @@ public class Cliente implements Serializable {
 
                 if (opcao == 1){
                     resp = login(login,senha);
-                    System.out.println(resp);
+                    if (resp != null){
+                        System.out.println("Login Feito com Sucesso.");
+                        System.out.println("Redirecionando...");
+                        menuJaLogado(resp);
+                    } else {
+                        System.out.println("Usuário ou senha incorretos! ");
+                    }
                 }
                 else if (opcao == 2){
                     resp = criarConta(login,senha);
-                    System.out.println(resp);
+                    if (resp != null) {
+                        System.out.println("Usuário criado com Sucesso.");
+                    } else {
+                        System.out.println("Já existe um usuário com esse login.");
+                    }
                 }
                 else if (opcao == 3){
                     System.out.println("Saida feita com Sucesso. ");
@@ -70,28 +84,54 @@ public class Cliente implements Serializable {
 
     public static void menuJaLogado(Usuario usuario){
         int opcao = 0;
-
+        Saldo saldo;
+        Usuario resp;
+        String senha = "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         while (true){
             try {
                 System.out.println("### Bem vindo " + usuario.getLogin() + " ### \n" +
                         "1.Consultar Saldo. \n" +
                         "2.Fazer Transferência. \n" +
-                        "3.Alterar Dados. \n" +
+                        "3.Alterar Senha. \n" +
                         "4.Sair para tela de login. \n" +
                         "Escolha uma opção: ");
                 opcao = scanner.nextInt();
                 scanner.nextLine();
 
                 if (opcao == 1){
-
+                    saldo = consultarSaldo(usuario.getLogin());
+                    if (saldo != null){
+                        System.out.println("Usuario: " + usuario.getLogin());
+                        System.out.println("Saldo: " + saldo.getSaldo());
+                    } else {
+                        System.out.println("Erro ao consultar o saldo");
+                    }
                 }
                 else if (opcao == 2){
-
+                    Transferencia transferencia = new Transferencia();
+                    transferencia.setContaRemetente(usuario.getLogin());
+                    transferencia = fazerTransferencia(transferencia);
+                    if (transferencia != null){
+                        String dataHoraFormatada = transferencia.getData().format(formatter);
+                        System.out.println("Tranferência concluida com sucesso.");
+                        System.out.println("Remetente: " + transferencia.getContaRemetente());
+                        System.out.println("Destinatario: " + transferencia.getContaDestino());
+                        System.out.println("Valor: " + transferencia.getValor());
+                        System.out.println("Data e Hora: " + dataHoraFormatada);
+                    } else {
+                        System.out.println("Erro na transferência");
+                    }
                 }
                 else if (opcao == 3) {
-
+                    resp = alterarSenha(usuario.getLogin(),senha);
+                    if (resp != null){
+                        System.out.println("Senha Alterada com Sucesso.");
+                    } else {
+                        System.out.println("Erro ao alterar a senha.");
+                    }
                 }else if (opcao == 4){
-
+                    primeiroMenu();
                 } else {
                     System.out.println("Digite uma opção válida. ");
                 }
@@ -120,7 +160,7 @@ public class Cliente implements Serializable {
                 System.out.println("Houve um erro contate o administrador " + ex.getMessage());
             }
         }
-        return new Usuario();
+        return null;
     }
 
 
@@ -133,8 +173,56 @@ public class Cliente implements Serializable {
         System.out.println("Entre com a senha: ");
         senha = scanner.nextLine();
 
-        System.out.println(login);
-        System.out.println(senha);
+        try {
+            return bancoAPI.criarConta(login, senha);
+        } catch (IOException e) {
+            System.out.println("ERRO: Tentando novamente ");
+        }
+        return new Usuario();
+    }
+
+    public static Usuario alterarSenha(String login, String senha){
+        System.out.println("### Alterar Senha ### \n");
+
+        System.out.println("Entre com a nova senha: ");
+        senha = scanner.nextLine();
+
+        try {
+            return bancoAPI.alterarSenha(login, senha);
+        } catch (IOException e) {
+            System.out.println("ERRO: Tentando novamente ");
+        }
+        return new Usuario();
+    }
+
+    public static Saldo consultarSaldo(String login){
+        System.out.println("### Consultar Saldo ### \n");
+        try {
+            return bancoAPI.consultarSaldo(login);
+        } catch (IOException e) {
+            System.out.println("ERRO: Tentando novamente ");
+        }
+        return null;
+    }
+
+    public static Transferencia fazerTransferencia(Transferencia transferencia){
+        String remente = "";
+        String destinatario = "";
+        System.out.println("### Consultar Saldo ### \n");
+
+        System.out.println("Entre com a destinatario: ");
+        destinatario = scanner.nextLine();
+        transferencia.setContaDestino(destinatario);
+
+        System.out.println("Entre com o valor: ");
+        transferencia.setValor(Double.valueOf(scanner.nextLine()));
+
+        transferencia.setData(LocalDateTime.now());
+        try {
+            return bancoAPI.fazerTransferencia(transferencia);
+        } catch (IOException e) {
+            System.out.println("ERRO: Tentando novamente ");
+        }
         return null;
     }
 

@@ -1,5 +1,6 @@
 package backend;
 
+import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 
@@ -12,9 +13,9 @@ public interface BancoAPI extends Remote {
 
     Usuario criarConta(String login, String senha) throws RemoteException;
 
-    Double consultarSaldo(String login) throws RemoteException;
+    Saldo consultarSaldo(String login) throws RemoteException;
 
     Usuario alterarSenha(String login, String senha) throws RemoteException;
 
-    void fazerTransferencia(Transferencia transferencia) throws RemoteException;
+    Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException;
 }

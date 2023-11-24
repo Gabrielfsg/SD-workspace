@@ -1,16 +1,25 @@
 [ {
   "login" : "Teste1",
   "senha" : "1234",
-  "saldo" : 0.0,
-  "token" : ""
+  "saldo" : 0.0
 }, {
   "login" : "Teste2",
   "senha" : "sigma132",
-  "saldo" : 300.0,
-  "token" : ""
+  "saldo" : 300.0
 }, {
   "login" : "Teste3",
   "senha" : "1234",
-  "saldo" : 215.0,
-  "token" : ""
+  "saldo" : 215.0
+}, {
+  "login" : "teste4",
+  "senha" : "xxt",
+  "saldo" : 1000.0
+}, {
+  "login" : "teste5",
+  "senha" : "23232",
+  "saldo" : 1200.0
+}, {
+  "login" : "teste6",
+  "senha" : "xxt",
+  "saldo" : 800.0
 } ]

@@ -4,6 +4,7 @@ import backend.services.TransferenciaService;
 import backend.services.UsuarioService;
 import backend.servidor.ClusterServidores;
 import comon.RMIServer;
+import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 
@@ -35,6 +36,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     }
 
     public void bancoServerRmiStart() {
+        rmiServer = new RMIServer();
         this.rmiServer.start();
     }
 
@@ -51,7 +53,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     }
 
     @Override
-    public Double consultarSaldo(String login) throws RemoteException {
+    public Saldo consultarSaldo(String login) throws RemoteException {
         System.out.println("Consultar Saldo");
         return UsuarioService.consultarSaldo(login);
     }
@@ -63,8 +65,8 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     }
 
     @Override
-    public void fazerTransferencia(Transferencia transferencia) throws RemoteException {
+    public Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException {
         System.out.println("Fazer Tranferência");
-        TransferenciaService.fazerTransferencia(transferencia);
+        return TransferenciaService.fazerTransferencia(transferencia);
     }
 }

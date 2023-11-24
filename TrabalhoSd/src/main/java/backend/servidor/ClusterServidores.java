@@ -97,7 +97,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void start() {
         try {
-            this.channel = new JChannel("TrabalhoSd/src/main/java/backend/config/banco.xml").setReceiver(this).connect("banco");
+            this.channel = new JChannel("banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
             channel.close();
