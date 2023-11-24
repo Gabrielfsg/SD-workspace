@@ -39,7 +39,7 @@ Abra um terminal e execute (para plataforma windows):
 - Cadastro
 - Alterar Senha
 - Saldo
-- Transferência de Saldo (Saldo não pode chegar a 0)
+- Transferência de Saldo (Saldo não pode chegar a  menos de 0 ou seja, negativo)
 - Ver Extrato
 
 ## Requisitos Básicos
