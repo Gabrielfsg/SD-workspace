@@ -16,11 +16,9 @@ public class UsuarioService {
                 System.out.println("Login realizado com sucesso: " + user.getLogin() + ", " + user.getSenha());
                 return user;
             }
-            System.out.println("Senha incorreta para o usuario: " + user.getLogin());
-            return null;
+            throw new RuntimeException("Senha incorreta para o usuario: " + user.getLogin());
         } else {
-            System.out.println("Usuario não encontrado: ");
-            return null;
+            throw new RuntimeException("Usuario não encontrado.");
         }
     }
 
@@ -32,8 +30,9 @@ public class UsuarioService {
             usuario.setSaldo(1000.0);
             usuario.salvarUsuario(usuario, new ArrayList<>());
             return usuario;
+        } else {
+            throw new RuntimeException("Já existe um usuário com esse login.");
         }
-        return null;
     }
 
     public static Saldo consultarSaldo(String login){
@@ -54,8 +53,9 @@ public class UsuarioService {
             usuario.setSenha(senha);
             usuario.salvarUsuario(usuario, usuario.listarTodos());
             return usuario;
+        } else{
+            throw new RuntimeException("Erro: Usuario não encontrado.");
         }
-            return null;
     }
 
     private static boolean usuarioExistente(String login){

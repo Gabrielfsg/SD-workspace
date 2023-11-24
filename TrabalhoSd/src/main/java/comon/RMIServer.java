@@ -6,50 +6,80 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 public class RMIServer extends Thread {
 
     public void run() {
-        try {
-            //criando socket UDP multicast
-            MulticastSocket socket  = new MulticastSocket(ConfiguracoesMulticast.port);
-            InetAddress addr = InetAddress.getByName(ConfiguracoesMulticast.ip);
-            socket.joinGroup(addr);
+        addShutdownHook();
+
+        try (MulticastSocket socket = new MulticastSocket(ConfiguracoesMulticast.port)) {
+            InetAddress groupAddress = InetAddress.getByName(ConfiguracoesMulticast.ip);
+            socket.joinGroup(groupAddress);
 
             while (true) {
+                DatagramPacket packet = receivePacket(socket);
+                System.out.println("Mensagem recebida: " + getMessage(packet));
 
-                byte[] buffer = new byte[256];
-                DatagramPacket pacote = new DatagramPacket(buffer, buffer.length,addr, ConfiguracoesMulticast.port);
-                System.out.println("Aguardando receber pedido de stub");
+                if (ConfiguracoesMulticast.TOKEN_COORDENADOR.equals(getMessage(packet))) {
+                    createRegistryIfNotExists();
 
-                socket.receive(pacote);
+                    String stubMessage = String.format("rmi://%s/banco", InetAddress.getLocalHost().getHostAddress());
+                    System.out.println("Retornando stub: " + stubMessage);
 
-                String msg = new String(pacote.getData(),0,pacote.getLength());
-                System.out.println("Mensagem recebida: " + msg);
-
-                if(ConfiguracoesMulticast.TOKEN_COORDENADOR.equals(msg)){
-
-                    Servidor obj = new Servidor();
-                    try{
-                        java.rmi.registry.LocateRegistry.getRegistry(1099);
-                        System.out.println("Pegando serviço registry já criado");
-                        Naming.rebind("rmi://localhost/banco", obj);
-                    }catch(Exception e){
-                        System.out.println("Criando registry");
-                        java.rmi.registry.LocateRegistry.createRegistry(1099);
-                        Naming.bind("rmi://localhost/banco", obj);
-                    }
-
-                    msg = String.format("rmi://%s/banco", InetAddress.getLocalHost().getHostAddress());
-                    System.out.println("Retornando stub: " + msg);
-
-                    byte[] bufferSend = msg.getBytes();
-                    pacote = new DatagramPacket(bufferSend, bufferSend.length,addr, ConfiguracoesMulticast.port);
-                    socket.send(pacote);
+                    sendStubMessage(socket, groupAddress, stubMessage);
                 }
             }
         } catch (Exception e) {
-            System.out.println("Erro rmiserver: " + e.getMessage());
+            handleException(e);
         }
+    }
+
+    private void addShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Registry registry = LocateRegistry.getRegistry(1099);
+                UnicastRemoteObject.unexportObject(registry, true);
+            } catch (Exception e) {
+                handleException(e);
+            }
+        }));
+    }
+
+    private DatagramPacket receivePacket(MulticastSocket socket) throws Exception {
+        byte[] buffer = new byte[256];
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        System.out.println("Esperendo pedido de stub...");
+        socket.receive(packet);
+        return packet;
+    }
+
+    private String getMessage(DatagramPacket packet) {
+        return new String(packet.getData(), 0, packet.getLength());
+    }
+
+    private Servidor createRegistryIfNotExists() throws Exception {
+        try {
+            LocateRegistry.createRegistry(1099);
+            System.out.println("Criando registry.");
+        } catch (Exception e) {
+            // Registry já criado
+        }
+
+        Servidor servidor = new Servidor();
+        Naming.rebind("rmi://localhost/banco", servidor);
+        return servidor;
+    }
+
+    private void sendStubMessage(MulticastSocket socket, InetAddress groupAddress, String message) throws Exception {
+        byte[] bufferSend = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(bufferSend, bufferSend.length, groupAddress, ConfiguracoesMulticast.port);
+        socket.send(packet);
+    }
+
+    private void handleException(Exception e) {
+        System.out.println("Erro rmiserver: " + e.getMessage());
     }
 }

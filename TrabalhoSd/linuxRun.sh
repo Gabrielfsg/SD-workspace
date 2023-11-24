@@ -1,26 +1,31 @@
 #!/bin/bash
 
-if [[ "$@" =~ "-h" ]]; then
-    echo "-r ---- Reconstroi o projeto novamente com o maven"
-    echo "-c ---- Inicia somente o cliente"
-    echo "-s ---- Inicia somente o servidor"
-    echo "Podem ser usados em conjuntos, se -c ou -s nao forem passados, o cliente e o servidor sera iniciado "
-    exit
+# Limpar compilações anteriores
+mvn clean
+
+# Empacotar o projeto em um arquivo JAR
+mvn package
+
+# Caminho para o diretório onde o JAR é gerado (por padrão, é a pasta 'target')
+caminho=target
+
+# Verificar se o arquivo JAR existe no diretório especificado
+if [ ! -e "$caminho/cliente.jar" ]; then
+    echo "Erro: O arquivo cliente.jar não foi encontrado em $caminho."
+    exit 1
 fi
 
-if [[ ! -d "./target" || "$1" == "-r" ]]; #Verifica se existe a pasta target ou se o usuario passou uma flag de rebuild para buildar o projeto
-  then
-    mvn clean install
+if [ ! -e "$caminho/server.jar" ]; then
+    echo "Erro: O arquivo server.jar não foi encontrado em $caminho."
+    exit 1
 fi
 
-if [[ "$@" =~ "-s" ]];
-    then
-    xterm -hold -e java -jar target/server.jar &
-elif [[ "$@" =~ "-c" ]];
-    then
-    xterm -hold -e java -jar target/cliente.jar &
-else
-    xterm -hold -e java -jar target/server.jar &
-    sleep 2
-    xterm -hold -e java -jar target/cliente.jar &
-fi
+# Executar o primeiro cliente em uma nova janela
+java -jar "$caminho/server.jar" &
+
+# Aguardar dois segundos
+sleep 5
+
+# Executar o segundo cliente em uma nova janela
+java -jar "$caminho/cliente.jar" &
+java -jar "$caminho/cliente.jar" &

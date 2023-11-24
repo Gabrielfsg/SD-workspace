@@ -20,17 +20,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         super();
     }
 
-    public static void iniciaRegistroRMI() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                UnicastRemoteObject.unexportObject(java.rmi.registry.LocateRegistry.getRegistry(1099), true);
-            } catch (Exception e) {
-            }
-        }));
-    }
-
     public static void main(String[] args) {
-        Servidor.iniciaRegistroRMI();
         ClusterServidores servidor = new ClusterServidores();
         servidor.start();
     }

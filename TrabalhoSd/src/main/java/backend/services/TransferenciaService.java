@@ -6,12 +6,13 @@ import comon.model.Usuario;
 public class TransferenciaService {
 
     public static Transferencia fazerTransferencia(Transferencia transferencia) {
-        Usuario remetente = new Usuario().buscarUsuarioPorLogin(transferencia.getContaRemetente());
-        Usuario destino = new Usuario().buscarUsuarioPorLogin(transferencia.getContaDestino());
-        if (!destino.getLogin().equals(remetente.getLogin()) ){
-            if (destino != null && remetente != null ) {
+        Usuario banco = new Usuario();
+        Usuario remetente = banco.buscarUsuarioPorLogin(transferencia.getContaRemetente());
+        Usuario destino = banco.buscarUsuarioPorLogin(transferencia.getContaDestino());
+        if (destino != null && remetente != null) {
+            if (!destino.getLogin().equals(remetente.getLogin())) {
                 if (remetente.getSaldo() < transferencia.getValor()) {
-                    System.out.println("Remetente não tem saldo suficiente!");
+                    throw new RuntimeException("Remetente não tem saldo suficiente!");
                 } else {
                     remetente.setSaldo(remetente.getSaldo() - transferencia.getValor());
                     destino.setSaldo(destino.getSaldo() + transferencia.getValor());
@@ -22,11 +23,10 @@ public class TransferenciaService {
                     return transferencia;
                 }
             } else {
-                System.out.println("Erro: Destinatario ou Remetente inexistente.");
+                throw new RuntimeException("Erro: Destinatario e Remetente não podem ser os mesmos.");
             }
         } else {
-            System.out.println("Erro: Destinatario e Remetente não podem ser os mesmos.");
+            throw new RuntimeException("Erro: Destinatario ou Remetente inexistente.");
         }
-            return null;
     }
 }
