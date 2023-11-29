@@ -2,22 +2,32 @@ package comon;
 
 import backend.Servidor;
 
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
+import java.net.*;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Enumeration;
 
 public class RMIServer extends Thread {
 
     public void run() {
         addShutdownHook();
-
         try (MulticastSocket socket = new MulticastSocket(ConfiguracoesMulticast.port)) {
             InetAddress groupAddress = InetAddress.getByName(ConfiguracoesMulticast.ip);
             socket.joinGroup(groupAddress);
+            String ip = buscarIP();
+            System.setProperty("java.rmi.server.hostname", ip);
+            Servidor objeto = new Servidor();
+            System.out.println("Registry IP: " + ip);
+            String enderecoRMI = String.format("rmi://%s/banco", ip);
+            try {
+                java.rmi.registry.LocateRegistry.getRegistry(1099);
+                Naming.rebind(enderecoRMI, objeto);
+            } catch (Exception e) {
+                java.rmi.registry.LocateRegistry.createRegistry(1099);
+                Naming.bind(enderecoRMI, objeto);
+            }
 
             while (true) {
                 DatagramPacket packet = receivePacket(socket);
@@ -81,5 +91,47 @@ public class RMIServer extends Thread {
 
     private void handleException(Exception e) {
         System.out.println("Erro rmiserver: " + e.getMessage());
+    }
+
+    public static String buscarIP() {
+        try {
+            Enumeration<NetworkInterface> interfacesRede = NetworkInterface.getNetworkInterfaces();
+            while (interfacesRede.hasMoreElements()) {
+                NetworkInterface interfaceRede = interfacesRede.nextElement();
+                if (isInterfaceValida(interfaceRede)) {
+                    String enderecoIP = buscarEnderecoIPNaInterface(interfaceRede);
+                    if (enderecoIP != null && !enderecoIP.isEmpty()) {
+                        return enderecoIP;
+                    }
+                }
+            }
+            return null;
+        } catch (SocketException e) {
+            System.err.println("Erro ao obter o endereço IP: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private static boolean isInterfaceValida(NetworkInterface interfaceRede) {
+        try {
+            return (interfaceRede.getName().equals("eno1") || interfaceRede.getName().contains("eth")) &&
+                    !interfaceRede.isLoopback() && interfaceRede.isUp();
+        } catch (SocketException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private static String buscarEnderecoIPNaInterface(NetworkInterface interfaceRede) {
+        Enumeration<InetAddress> enderecos = interfaceRede.getInetAddresses();
+        while (enderecos.hasMoreElements()) {
+            InetAddress endereco = enderecos.nextElement();
+            if (endereco instanceof Inet4Address) {
+                String enderecoIP = endereco.getHostAddress();
+                System.out.println(" " + enderecoIP);
+                return enderecoIP;
+            }
+        }
+        return null;
     }
 }

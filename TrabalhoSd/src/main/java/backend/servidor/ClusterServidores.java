@@ -1,8 +1,13 @@
 package backend.servidor;
 
 import backend.Servidor;
+import backend.services.TransferenciaService;
+import backend.services.UsuarioService;
 import comon.RMIServer;
 import comon.model.Estado;
+import comon.model.Saldo;
+import comon.model.Transferencia;
+import comon.model.Usuario;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
@@ -10,24 +15,25 @@ import org.jgroups.View;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.Response;
+import org.jgroups.blocks.RpcDispatcher;
 import org.jgroups.blocks.locking.LockService;
 import org.jgroups.util.Util;
 
 import java.io.*;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 public class ClusterServidores implements Receiver, RequestHandler {
 
     private JChannel channel;
-    private MessageDispatcher despachante;
+    private RpcDispatcher despachante;
     private LockService servicoTravas;
     private Servidor bancoServer;
 
     final int TAMANHO_MINIMO_CLUSTER = 1;
 
     private boolean souCordenador = false;
-
-    private RMIServer rmiServer;
 
     public ClusterServidores() {
         try {
@@ -58,7 +64,6 @@ public class ClusterServidores implements Receiver, RequestHandler {
     }
 
     public void getState(OutputStream output) {
-        System.out.println("Obteve o estado");
         try {
             Estado estado = new Estado();
             File file = new File("users.json");
@@ -69,20 +74,38 @@ public class ClusterServidores implements Receiver, RequestHandler {
             stream = new BufferedInputStream(new FileInputStream(file));
             estado.setTransferencias(stream.readAllBytes());
             stream.close();
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(output);
-            objectOutputStream.writeObject(estado);
-            System.out.println("Envio de Estado Feito com Sucesso.");
+            System.out.println("Estado enviado.");
         } catch (FileNotFoundException e) {
-            System.out.println("Arquivo(s) não encontrado(s), erro: " + e.getMessage());
+            System.out.println("Arquivo(s) inexistente, erro: " + e.getMessage());
             this.channel.disconnect();
             this.iniciarCanal();
         } catch (IOException e) {
-            System.out.println("Erro ao enviar estado: " + e.getMessage());
+            System.out.println("Erro: " + e.getMessage());
         }
     }
 
     public void setState(InputStream input) throws Exception {
+        try {
+            Estado estado = (Estado) Util.objectFromStream(new DataInputStream(input));
 
+            File file = new File("users.json");
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+            stream.write(estado.getUsuarios());
+            stream.flush();
+            stream.close();
+            file = new File("transferencias.json");
+            stream = new BufferedOutputStream(new FileOutputStream(file));
+            estado.setTransferencias(estado.getTransferencias());
+            stream.flush();
+            stream.close();
+            System.out.println("Estado Coordenador: " + this.channel.view().getCoord());
+        } catch (FileNotFoundException e) {
+            System.out.println("Arquivo(s) inexistente, erro: " + e.getMessage());
+            this.channel.disconnect();
+            this.iniciarCanal();
+        } catch (IOException e) {
+            System.out.println("Erro: " + e.getMessage());
+        }
     }
 
     @Override
@@ -113,7 +136,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
         while (!iniciouConecxao) {
             try {
                 this.channel.connect("banco");
-                this.despachante = new MessageDispatcher(this.channel);
+                this.despachante = new RpcDispatcher(this.channel, this);
                 //olhar hello word tipos de cast
                 this.despachante.setReceiver(this);
                 this.despachante.setRequestHandler(this);
@@ -166,5 +189,53 @@ public class ClusterServidores implements Receiver, RequestHandler {
                 Util.sleep(1500);
             }
         }
+    }
+
+    public RpcDispatcher obterDespachante() {
+        return this.despachante;
+    }
+
+    public Usuario fazerLogin(String login, String senha) {
+        return UsuarioService.realizarLogin(login, senha);
+    }
+    public Usuario criarConta(String login, String senha){
+        return UsuarioService.criarConta(login, senha);
+    }
+
+    public Saldo consultarSaldo(String login){
+        System.out.println("Consultar saldo login: " + login);
+        Saldo saldo = new Saldo();
+        Lock trava = this.servicoTravas.getLock(login);
+        try {
+            trava.lock();
+            saldo = UsuarioService.consultarSaldo(login);
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return saldo;
+    }
+
+    public Usuario alterarSenha(String login, String senha) {
+        Usuario usuario = new Usuario();
+        Lock trava = this.servicoTravas.getLock(login);
+        try {
+            trava.lock();
+            usuario = UsuarioService.alterarSenha(login,senha);
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return usuario;
+    }
+
+    public Transferencia fazerTransferencia(Transferencia transferencia) {
+        return TransferenciaService.fazerTransferencia(transferencia);
+    }
+
+    public List<Transferencia> extrato(String login){
+        return TransferenciaService.extrato(login);
     }
 }

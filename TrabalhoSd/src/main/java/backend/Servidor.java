@@ -7,6 +7,11 @@ import comon.RMIServer;
 import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
+import frotend.Cliente;
+import org.jgroups.blocks.MethodCall;
+import org.jgroups.blocks.RequestOptions;
+import org.jgroups.blocks.ResponseMode;
+import org.jgroups.util.RspList;
 
 import java.rmi.RemoteException;
 import java.rmi.server.*;
@@ -17,12 +22,14 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
 
     private RMIServer rmiServer;
 
+    private static ClusterServidores servidor;
+
     public Servidor() throws RemoteException {
         super();
     }
 
     public static void main(String[] args) {
-        ClusterServidores servidor = new ClusterServidores();
+        servidor = new ClusterServidores();
         servidor.start();
     }
 
@@ -46,7 +53,17 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     @Override
     public Saldo consultarSaldo(String login) throws RemoteException {
         System.out.println("Consultar Saldo");
-        return UsuarioService.consultarSaldo(login);
+        Saldo saldo = new Saldo();
+        RequestOptions opcoes = new RequestOptions();
+        MethodCall methodCall = new MethodCall("consultarSaldo", new Object[] { login }, new Class[] { String.class });
+        opcoes.setMode(ResponseMode.GET_FIRST);
+        try {
+            RspList<Saldo> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
+            saldo = resposta.getFirst();
+        } catch (Exception e) {
+            System.out.println("Erro ao enviar saldo: " + e.getMessage());
+        }
+        return saldo;
     }
 
     @Override

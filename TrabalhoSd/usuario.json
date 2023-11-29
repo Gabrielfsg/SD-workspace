@@ -8,4 +8,14 @@
   "senha" : "9d2005ef9e38c2994b7edb074d225ecbf56f66accadb4132f635159288f8b64c",
   "saldo" : 2000.0,
   "salt" : "c5484498ad69528988c860562e099789"
+}, {
+  "login" : "teste3",
+  "senha" : "e755010090b77052f53f0e9f7b90baea332dbb2ef561476bd46b896637e7ebac",
+  "saldo" : 1000.0,
+  "salt" : "1df4e8f0a3fbd0f18e862155d694bd53"
+}, {
+  "login" : "teste4",
+  "senha" : "cd2d7ba9a38a344a216cc815717c7d6cadf2b637d7d74794dcfe2c65e5c80f8e",
+  "saldo" : 1000.0,
+  "salt" : "cd990202a5a725d99d8f86001e5cf9ba"
 } ]
