@@ -139,7 +139,6 @@ public class ClusterServidores implements Receiver, RequestHandler {
                 this.despachante = new RpcDispatcher(this.channel, this);
                 //olhar hello word tipos de cast
                 this.despachante.setReceiver(this);
-                this.despachante.setRequestHandler(this);
                 //Olhar hello word multex ou trava
                 this.servicoTravas = new LockService(this.channel);
                 iniciouConecxao = true;
