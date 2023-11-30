@@ -69,7 +69,17 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     @Override
     public Usuario alterarSenha(String login, String senha) throws RemoteException {
         System.out.println("Alterar Dados");
-        return UsuarioService.alterarSenha(login, senha);
+        Usuario usuario = new Usuario();
+        RequestOptions opcoes = new RequestOptions();
+        MethodCall methodCall = new MethodCall("alterarSenha", new Object[] { login, senha }, new Class[] { String.class, String.class  });
+        opcoes.setMode(ResponseMode.GET_ALL);
+        try {
+            RspList<Usuario> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
+            usuario = resposta.getFirst();
+        } catch (Exception e) {
+            System.out.println("Erro ao enviar saldo: " + e.getMessage());
+        }
+        return usuario;
     }
 
     @Override
