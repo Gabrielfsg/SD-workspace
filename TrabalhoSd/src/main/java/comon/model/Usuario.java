@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Usuario implements Serializable {
 
-    private static final String FILE_PATH = "usuario.json";
+    private static final String FILE_PATH = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/usuario.json";
     private String login;
     private String senha;
 
@@ -109,4 +109,13 @@ public class Usuario implements Serializable {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "login='" + login + '\'' +
+                ", senha='" + senha + '\'' +
+                ", saldo=" + saldo +
+                ", salt='" + salt + '\'' +
+                '}';
+    }
 }

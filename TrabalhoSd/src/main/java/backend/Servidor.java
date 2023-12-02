@@ -41,7 +41,32 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     @Override
     public Usuario fazerLogin(String login, String senha) throws RemoteException {
         System.out.println("Realizando login");
-        return UsuarioService.realizarLogin(login, senha);
+        Usuario user = new Usuario();
+        RequestOptions opcoes = new RequestOptions();
+        MethodCall methodCall1 = new MethodCall("getLogados", new Object[] {}, new Class[] { });
+        opcoes.setMode(ResponseMode.GET_FIRST);
+        try {
+            RspList<List<String>> resposta1 = servidor.obterDespachante().callRemoteMethods(null, methodCall1, opcoes);
+            List<String> logados = resposta1.getFirst();
+            System.out.println("Logados ..." + logados.toString());
+            if (logados.contains(login)) {
+                user.setLogin(login);
+                System.out.println("Usuario já está logado");
+            } else {
+                MethodCall methodCall = new MethodCall("fazerLogin", new Object[] { login, senha }, new Class[] { String.class, String.class });
+                opcoes.setMode(ResponseMode.GET_FIRST);
+                try {
+                    RspList<Usuario> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
+                    user = resposta.getFirst();
+                } catch (Exception e) {
+                    System.out.println("Erro ao realizar login: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao realizar login: " + e.getMessage());
+        }
+
+        return user;
     }
 
     @Override

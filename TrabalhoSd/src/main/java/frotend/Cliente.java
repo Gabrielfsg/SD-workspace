@@ -55,10 +55,15 @@ public class Cliente implements Serializable {
 
                 if (opcao == 1) {
                     resp = login(login, senha);
-                    if (resp != null) {
+                    System.out.println("resposta " + resp);
+                    if (resp.getLogin() !=null && resp.getSenha() != null) {
                         System.out.println("Login Feito com Sucesso.");
                         System.out.println("Redirecionando...");
                         menuJaLogado(resp);
+                    } else if (resp.getLogin() != null) {
+                        System.out.println("Usuario já logado em outro terminal");
+                    } else {
+                        System.out.println("Usuario ou senha incorretos");
                     }
                 } else if (opcao == 2) {
                     resp = criarConta(login, senha);

@@ -21,6 +21,7 @@ import org.jgroups.util.Util;
 
 import java.io.*;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -31,6 +32,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private LockService servicoTravas;
     private Servidor bancoServer;
 
+    private List<String> logados;
     final int TAMANHO_MINIMO_CLUSTER = 1;
 
     private boolean souCordenador = false;
@@ -38,6 +40,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public ClusterServidores() {
         try {
             this.bancoServer = new Servidor();
+            this.logados = new ArrayList<>();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -120,7 +123,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void start() {
         try {
-            this.channel = new JChannel("banco.xml").connect("banco");
+            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
             channel.close();
@@ -195,7 +198,20 @@ public class ClusterServidores implements Receiver, RequestHandler {
     }
 
     public Usuario fazerLogin(String login, String senha) {
-        return UsuarioService.realizarLogin(login, senha);
+        System.out.println("Realizar login: " + login);
+        Usuario user = new Usuario();
+        Lock trava = this.servicoTravas.getLock(login);
+        try {
+            trava.lock();
+            user = UsuarioService.realizarLogin(login, senha);
+            this.logados.add(login);
+            System.out.println("adicionar logado");
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return user;
     }
     public Usuario criarConta(String login, String senha){
         return UsuarioService.criarConta(login, senha);
@@ -236,5 +252,21 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public List<Transferencia> extrato(String login){
         return TransferenciaService.extrato(login);
+    }
+
+
+    public List<String> getLogados(){
+        System.out.println("Consultar logados: ");
+        Lock trava = this.servicoTravas.getLock("logados");
+        List<String> logados = new ArrayList<>();
+        try {
+            trava.lock();
+            logados = this.logados;
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return logados;
     }
 }

@@ -7,7 +7,9 @@ import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Scanner;
 
 public class RMIServer extends Thread {
 
@@ -17,6 +19,7 @@ public class RMIServer extends Thread {
             InetAddress groupAddress = InetAddress.getByName(ConfiguracoesMulticast.ip);
             socket.joinGroup(groupAddress);
             String ip = buscarIP();
+            System.out.println("ip " + ip);
             System.setProperty("java.rmi.server.hostname", ip);
             Servidor objeto = new Servidor();
             System.out.println("Registry IP: " + ip);
@@ -90,26 +93,34 @@ public class RMIServer extends Thread {
     }
 
     private void handleException(Exception e) {
-        System.out.println("Erro rmiserver: " + e.getMessage());
+        e.printStackTrace();
+        System.out.println("Erro rmiserver: " + e);
     }
 
     public static String buscarIP() {
+        ArrayList<String> ips = new ArrayList<String>();
+        int i = 0;
+        System.out.println("---- Seleção de Interface de Rede ----");
         try {
-            Enumeration<NetworkInterface> interfacesRede = NetworkInterface.getNetworkInterfaces();
-            while (interfacesRede.hasMoreElements()) {
-                NetworkInterface interfaceRede = interfacesRede.nextElement();
-                if (isInterfaceValida(interfaceRede)) {
-                    String enderecoIP = buscarEnderecoIPNaInterface(interfaceRede);
-                    if (enderecoIP != null && !enderecoIP.isEmpty()) {
-                        return enderecoIP;
-                    }
+            for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
+                NetworkInterface iface = ifaces.nextElement();
+                for (Enumeration<InetAddress> addresses = iface.getInetAddresses(); addresses.hasMoreElements();) {
+                    InetAddress address = addresses.nextElement();
+                    if (address instanceof Inet6Address) // nao quero ipv6
+                        continue;
+                    ips.add(address.getHostAddress());
+                    System.out.println(String.format("[%d] %s - %s", i, iface.getName(), address.getHostAddress()));
+                    i++;
                 }
             }
-            return null;
         } catch (SocketException e) {
-            System.err.println("Erro ao obter o endereço IP: " + e.getMessage());
-            return null;
+            throw new RuntimeException(e);
         }
+
+        System.out.println("Escolha a interface de rede adequada: ");
+        int op = new Scanner(System.in).nextInt();
+        System.out.println("---------------------------------------");
+        return ips.get(op);
     }
 
     private static boolean isInterfaceValida(NetworkInterface interfaceRede) {

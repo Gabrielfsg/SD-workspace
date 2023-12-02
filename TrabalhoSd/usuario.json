@@ -18,4 +18,9 @@
   "senha" : "cd2d7ba9a38a344a216cc815717c7d6cadf2b637d7d74794dcfe2c65e5c80f8e",
   "saldo" : 1000.0,
   "salt" : "cd990202a5a725d99d8f86001e5cf9ba"
+}, {
+  "login" : "daniel",
+  "senha" : "7e6dc939cacd8f9d6b325779e8f3d3948187e3490e648425d0aa0776511a8709",
+  "saldo" : 1000.0,
+  "salt" : "d89ac2f8a3215d891f72a8b92c977b83"
 } ]
