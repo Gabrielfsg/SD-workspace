@@ -1,7 +1,7 @@
 [ {
   "login" : "admin",
-  "senha" : "67461872f608c0d074fc2982d6255d7768fe5c2bd30ccdd63f3ab9bf2eb1f59e",
+  "senha" : "64c53f3944d9a3ae01b3ab740d869b5bf82091f263f5966dd7aeb06845d28207",
   "saldo" : 1000.0,
-  "salt" : "f9599bb46946211c43b19960413d144c",
+  "salt" : "f2306ef04da435d8043b1c0f44b9dacc",
   "versaoBanco" : 0
 } ]
