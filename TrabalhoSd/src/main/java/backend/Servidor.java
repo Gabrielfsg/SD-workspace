@@ -145,18 +145,17 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     System.out.println("Membro com erro: " + membro.getKey());
                     membrosComErro.addAndGet(1);
                 }
-
-                if (membrosComErro.get() != 0){
-                    System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
-                    opcoes.setMode(ResponseMode.GET_NONE);
-                    opcoes.setTimeout(300);
-                    try {
-                        servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class},opcoes);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
             });
+            if (membrosComErro.get() != 0){
+                System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
+                opcoes.setMode(ResponseMode.GET_NONE);
+                opcoes.setTimeout(300);
+                try {
+                    servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class},opcoes);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } catch (Exception e) {
             System.out.println("Erro ao enviar usuario: " + e.getMessage());
         }
