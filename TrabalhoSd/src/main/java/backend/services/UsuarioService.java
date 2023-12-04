@@ -45,6 +45,7 @@ public class UsuarioService {
         if (usuario != null){
             Saldo saldo = new Saldo();
             saldo.setSaldo(usuario.getSaldo());
+            saldo.setVersaoBanco(Integer.parseInt(usuario.lerArquivo()));
             return saldo;
         }
         return null;

@@ -69,7 +69,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public void getState(OutputStream output) {
         try {
             Estado estado = new Estado();
-            File file = new File("users.json");
+            File file = new File("usuario.json");
             BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
             estado.setUsuarios(stream.readAllBytes());
             stream.close();
@@ -91,7 +91,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
         try {
             Estado estado = (Estado) Util.objectFromStream(new DataInputStream(input));
 
-            File file = new File("users.json");
+            File file = new File("usuario.json");
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getUsuarios());
             stream.flush();
@@ -123,7 +123,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void start() {
         try {
-            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
+            this.channel = new JChannel("banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
             channel.close();
@@ -197,6 +197,12 @@ public class ClusterServidores implements Receiver, RequestHandler {
         return this.despachante;
     }
 
+
+    public void reiniciarMembro(){
+        this.channel.disconnect();
+        this.iniciarCanal();
+    }
+
     public Usuario fazerLogin(String login, String senha) {
         System.out.println("Realizar login: " + login);
         Usuario user = new Usuario();
@@ -247,7 +253,21 @@ public class ClusterServidores implements Receiver, RequestHandler {
     }
 
     public Transferencia fazerTransferencia(Transferencia transferencia) {
-        return TransferenciaService.fazerTransferencia(transferencia);
+        Transferencia transferenciaResp = new Transferencia();
+        Lock travaRemetente = this.servicoTravas.getLock(transferencia.getContaRemetente());
+        Lock travaDestinatario = this.servicoTravas.getLock(transferencia.getContaDestino());
+
+        try {
+            travaRemetente.lock();
+            travaDestinatario.lock();
+            transferenciaResp = TransferenciaService.fazerTransferencia(transferencia);
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            travaRemetente.unlock();
+            travaDestinatario.unlock();
+        }
+        return transferenciaResp;
     }
 
     public List<Transferencia> extrato(String login){
@@ -268,5 +288,23 @@ public class ClusterServidores implements Receiver, RequestHandler {
             trava.unlock();
         }
         return logados;
+    }
+
+    public void desfazMudancasParaOriginal(Estado estado) throws RemoteException {
+        try {
+            File file = new File("transferencias.json");
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
+            stream.write(estado.getTransferencias());
+            stream.flush();
+            stream.close();
+            file = new File("usuario.json");
+            stream = new BufferedOutputStream(new FileOutputStream(file));
+            stream.write(estado.getUsuarios());
+            stream.flush();
+            stream.close();
+        } catch (Exception e) {
+            this.channel.disconnect();
+            this.iniciarCanal();
+        }
     }
 }

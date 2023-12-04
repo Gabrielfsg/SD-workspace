@@ -1,26 +1,7 @@
 [ {
-  "login" : "teste1",
-  "senha" : "e23f400df8e87b0badddd7f81b3f67f59e8ed9c2b88761b4e15498435d5f676e",
-  "saldo" : 0.0,
-  "salt" : "7dd924c563155be03a113ec0e931d5fd"
-}, {
-  "login" : "teste2",
-  "senha" : "9d2005ef9e38c2994b7edb074d225ecbf56f66accadb4132f635159288f8b64c",
-  "saldo" : 2000.0,
-  "salt" : "c5484498ad69528988c860562e099789"
-}, {
-  "login" : "teste3",
-  "senha" : "e755010090b77052f53f0e9f7b90baea332dbb2ef561476bd46b896637e7ebac",
+  "login" : "admin",
+  "senha" : "67461872f608c0d074fc2982d6255d7768fe5c2bd30ccdd63f3ab9bf2eb1f59e",
   "saldo" : 1000.0,
-  "salt" : "1df4e8f0a3fbd0f18e862155d694bd53"
-}, {
-  "login" : "teste4",
-  "senha" : "cd2d7ba9a38a344a216cc815717c7d6cadf2b637d7d74794dcfe2c65e5c80f8e",
-  "saldo" : 1000.0,
-  "salt" : "cd990202a5a725d99d8f86001e5cf9ba"
-}, {
-  "login" : "daniel",
-  "senha" : "7e6dc939cacd8f9d6b325779e8f3d3948187e3490e648425d0aa0776511a8709",
-  "saldo" : 1000.0,
-  "salt" : "d89ac2f8a3215d891f72a8b92c977b83"
+  "salt" : "f9599bb46946211c43b19960413d144c",
+  "versaoBanco" : 0
 } ]

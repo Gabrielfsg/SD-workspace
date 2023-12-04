@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +13,22 @@ import java.util.stream.Collectors;
 public class Transferencia implements Serializable {
 
     private static final String FILE_PATH = "transferencias.json";
+
+    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
     String contaRemetente;
     String contaDestino;
     Double valor;
     LocalDateTime data;
+
+    private int versaoBanco;
+
+    public int getVersaoBanco() {
+        return versaoBanco;
+    }
+
+    public void setVersaoBanco(int versaoBanco) {
+        this.versaoBanco = versaoBanco;
+    }
 
     public Transferencia() {}
 
@@ -115,6 +125,28 @@ public class Transferencia implements Serializable {
         }
     }
 
+    public String lerArquivo() {
+        StringBuilder conteudo = new StringBuilder();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH_VERSAO))) {
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                conteudo.append(linha);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return conteudo.toString();
+    }
+
+    public void atualizarArquivo(String novoConteudo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH_VERSAO))) {
+            bw.write(novoConteudo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

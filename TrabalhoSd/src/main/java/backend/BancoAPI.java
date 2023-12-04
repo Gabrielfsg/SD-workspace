@@ -4,6 +4,7 @@ import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -16,7 +17,7 @@ public interface BancoAPI extends Remote {
 
     Saldo consultarSaldo(String login) throws RemoteException;
 
-    Usuario alterarSenha(String login, String senha) throws RemoteException;
+    Usuario alterarSenha(String login, String senha) throws IOException;
 
     Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException;
 
