@@ -8,27 +8,16 @@ import comon.model.Estado;
 import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
-import org.jgroups.JChannel;
-import org.jgroups.Message;
-import org.jgroups.Receiver;
-import org.jgroups.View;
+import org.jgroups.*;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.Response;
 import org.jgroups.blocks.RpcDispatcher;
 import org.jgroups.blocks.locking.LockService;
 import org.jgroups.util.Util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -39,8 +28,21 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private LockService servicoTravas;
     private Servidor bancoServer;
 
-    final int TAMANHO_MINIMO_CLUSTER = 1;
     private TokenManager tokenManager;
+
+    private boolean estaSincronizado = false;
+
+    private int versaoBanco;
+
+    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
+
+    public Address getAdress() {
+        return channel.getAddress();
+    }
+
+    public void atualiza(){
+        channel.getState();
+    }
 
     private boolean souCordenador = false;
 
@@ -65,6 +67,37 @@ public class ClusterServidores implements Receiver, RequestHandler {
             }
         } else {
             this.getEstado();
+        }
+    }
+
+    public int getVersaoBanco() {
+        return versaoBanco;
+    }
+
+    public void setVersaoBanco(int versaoBanco) {
+        this.versaoBanco = versaoBanco;
+    }
+
+    public String lerArquivo() {
+        StringBuilder conteudo = new StringBuilder();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH_VERSAO))) {
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                conteudo.append(linha);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return conteudo.toString();
+    }
+
+    public void atualizarArquivo(String novoConteudo) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH_VERSAO))) {
+            bw.write(novoConteudo);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -130,15 +163,29 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void start() {
         try {
-            this.channel = new JChannel("TrabalhoSd/banco.xml").connect("banco");
+            this.channel = new JChannel("banco.xml").connect("banco");
 //            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
+            this.sincronizar();
             channel.close();
         } catch (Exception erro) {
             // DEBUG
             System.out.println("ERRO: Server " + erro.getMessage());
             erro.printStackTrace();
+        }
+    }
+
+    private void sincronizar(){
+        while (channel.getView().getMembers().size() < 1){
+            Util.sleep(1000);
+        }
+
+//        while (!estaSincronizado){
+//            Util.sleep(100);
+//        }
+        channel.getState();
+        while (true) {
         }
     }
 
@@ -164,17 +211,10 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private void iniciarBanco() {
         try {
 
-            while (this.channel.getView().size() < TAMANHO_MINIMO_CLUSTER) {
-                Util.sleep(1000);
-            }
-
             if (souCoordenador()) {
                 this.bancoServer.bancoServerRmiStart();
             } else {
                 this.channel.getState(null, 10000);
-            }
-
-            while (true) {
             }
         } catch (Exception erro) {
             // DEBUG
@@ -289,22 +329,34 @@ public class ClusterServidores implements Receiver, RequestHandler {
     }
 
     public List<Transferencia> extrato(String login){
-        return TransferenciaService.extrato(login);
+        System.out.println("Extrato: " + login);
+        List<Transferencia> transferencia = new ArrayList<>();
+        Lock trava = this.servicoTravas.getLock(login);
+        try {
+            trava.lock();
+            transferencia = TransferenciaService.extrato(login);
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return transferencia;
     }
 
 
     public void desfazMudancasParaOriginal(Estado estado) throws RemoteException {
         try {
-            File file = new File("TrabalhoSd/transferencias.json");
+            File file = new File("transferencias.json");
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getTransferencias());
             stream.flush();
             stream.close();
-            file = new File("TrabalhoSd/usuario.json");
+            file = new File("usuario.json");
             stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getUsuarios());
             stream.flush();
             stream.close();
+            atualizarArquivo(String.valueOf(estado.getVersaoBanco()));
         } catch (Exception e) {
             this.channel.disconnect();
             this.iniciarCanal();

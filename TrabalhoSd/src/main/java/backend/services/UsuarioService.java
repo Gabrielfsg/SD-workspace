@@ -47,7 +47,6 @@ public class UsuarioService {
         if (usuario != null){
             Saldo saldo = new Saldo();
             saldo.setSaldo(usuario.getSaldo());
-            saldo.setVersaoBanco(Integer.parseInt(usuario.lerArquivo()));
             return saldo;
         }
         return null;
@@ -60,7 +59,6 @@ public class UsuarioService {
             String hashSenhaOriginal = gerarHash(senha, usuario.getSalt());
             usuario.setSenha(hashSenhaOriginal);
             usuario.salvarUsuario(usuario, usuario.listarTodos());
-            usuario.atualizarArquivo(String.valueOf(Integer.parseInt(usuario.lerArquivo()) + 1));
             return usuario;
         } else{
             throw new RuntimeException("Erro: Usuario não encontrado.");

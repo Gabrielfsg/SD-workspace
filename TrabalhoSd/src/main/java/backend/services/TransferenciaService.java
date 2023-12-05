@@ -22,9 +22,6 @@ public class TransferenciaService {
                     destino.salvarUsuario(destino, destino.listarTodos());
                     transferencia.salvarTransferencia(transferencia);
                     System.out.println("Transferência Feita com Sucesso!");
-                    int versao = Integer.parseInt(transferencia.lerArquivo()) + 1;
-                    transferencia.atualizarArquivo(String.valueOf(versao));
-                    transferencia.setVersaoBanco(versao);
                     return transferencia;
                 }
             } else {

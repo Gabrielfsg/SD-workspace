@@ -43,6 +43,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         this.rmiServer.start();
     }
 
+
     @Override
     public String fazerLogin(String login, String senha) throws RemoteException {
         System.out.println("Realizando login");
@@ -64,8 +65,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         System.out.println("Criar Conta");
         Usuario usuario = new Usuario();
         try {
-            Estado estado = new Estado(usuario.getVersaoBanco());
-            usuario.setVersaoBanco(0);
+            Estado estado = new Estado(servidor.getVersaoBanco());
             RequestOptions opcoes = new RequestOptions();
             MethodCall methodCall = new MethodCall("criarConta", new Object[]{login, senha}, new Class[]{String.class, String.class});
             opcoes.setMode(ResponseMode.GET_ALL);
@@ -76,35 +76,30 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived()) {
-                    if (usuario.getVersaoBanco() <= membro.getValue().getValue().getVersaoBanco()) {
-                        usuario.setSenha(membro.getValue().getValue().getSenha());
-                        usuario.setLogin(membro.getValue().getValue().getLogin());
-                        usuario.setVersaoBanco(membro.getValue().getValue().getVersaoBanco());
-                    } else {
-                        try {
-                            System.out.println("Reiniciar Membro.");
-                            servidor.obterDespachante().callRemoteMethod(membro.getKey(), "desconectar", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                    usuario.setSenha(membro.getValue().getValue().getSenha());
+                    usuario.setLogin(membro.getValue().getValue().getLogin());
                 } else {
                     System.out.println("Membro com erro: " + membro.getKey());
                     membrosComErro.addAndGet(1);
-                }
-
-                if (membrosComErro.get() != 0){
-                    System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
-                    opcoes.setMode(ResponseMode.GET_NONE);
-                    opcoes.setTimeout(300);
                     try {
-                        servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class},opcoes);
+                        System.out.println("Atualiza Membro");
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
             });
+            if (membrosComErro.get() > (membros.size() / 2)) {
+                System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
+                opcoes.setMode(ResponseMode.GET_NONE);
+                opcoes.setTimeout(300);
+                try {
+                    servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class}, opcoes);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } catch (Exception e) {
             System.out.println("Erro ao enviar usuario: " + e.getMessage());
         }
@@ -118,7 +113,6 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
             return null;
         }
         Saldo saldo = new Saldo();
-        saldo.setVersaoBanco(0);
         RequestOptions opcoes = new RequestOptions();
         MethodCall methodCall = new MethodCall("consultarSaldo", new Object[]{TokenManager.decodeToken(token)}, new Class[]{String.class});
         opcoes.setMode(ResponseMode.GET_ALL);
@@ -126,17 +120,14 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         try {
             RspList<Saldo> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived()) {
-                    if (saldo.getVersaoBanco() <= membro.getValue().getValue().getVersaoBanco()) {
-                        saldo.setSaldo(membro.getValue().getValue().getSaldo());
-                        saldo.setVersaoBanco(membro.getValue().getValue().getVersaoBanco());
-                    } else {
-                        try {
-                            System.out.println("Reiniciar Membro.");
-                            servidor.obterDespachante().callRemoteMethod(membro.getKey(), "desconectar", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                    saldo.setSaldo(membro.getValue().getValue().getSaldo());
+                } else {
+                    try {
+                        System.out.println("Atualiza Membro");
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
                     }
                 }
             });
@@ -154,8 +145,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         }
         Usuario usuario = new Usuario();
         try {
-            Estado estado = new Estado(usuario.getVersaoBanco());
-            usuario.setVersaoBanco(0);
+            Estado estado = new Estado(servidor.getVersaoBanco());
             RequestOptions opcoes = new RequestOptions();
             MethodCall methodCall = new MethodCall("alterarSenha", new Object[]{TokenManager.decodeToken(token), senha}, new Class[]{String.class, String.class});
             opcoes.setMode(ResponseMode.GET_ALL);
@@ -166,29 +156,25 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived()) {
-                    if (usuario.getVersaoBanco() <= membro.getValue().getValue().getVersaoBanco()) {
-                        usuario.setSenha(membro.getValue().getValue().getSenha());
-                        usuario.setVersaoBanco(membro.getValue().getValue().getVersaoBanco());
-                    } else {
-                        try {
-                            System.out.println("Reiniciar Membro.");
-                            servidor.obterDespachante().callRemoteMethod(membro.getKey(), "desconectar", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                    usuario.setSenha(membro.getValue().getValue().getSenha());
                 } else {
                     System.out.println("Membro com erro: " + membro.getKey());
                     membrosComErro.addAndGet(1);
+                    try {
+                        System.out.println("Atualiza Membro");
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
-            if (membrosComErro.get() != 0){
+            if (membrosComErro.get() != 0) {
                 System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
                 opcoes.setMode(ResponseMode.GET_NONE);
                 opcoes.setTimeout(300);
                 try {
-                    servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class},opcoes);
+                    servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class}, opcoes);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -207,8 +193,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         }
         Transferencia tt = new Transferencia();
         try {
-            Estado estado = new Estado(tt.getVersaoBanco());
-            tt.setVersaoBanco(0);
+            Estado estado = new Estado(servidor.getVersaoBanco());
             RequestOptions opcoes = new RequestOptions();
             MethodCall methodCall = new MethodCall("fazerTransferencia", new Object[]{transferencia}, new Class[]{Transferencia.class});
             opcoes.setMode(ResponseMode.GET_ALL);
@@ -219,37 +204,32 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived()) {
-                    if (tt.getVersaoBanco() <= membro.getValue().getValue().getVersaoBanco()) {
+                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                         tt.setData(membro.getValue().getValue().getData());
-                        tt.setVersaoBanco(membro.getValue().getValue().getVersaoBanco());
                         tt.setValor(membro.getValue().getValue().getValor());
                         tt.setContaDestino(membro.getValue().getValue().getContaDestino());
                         tt.setContaRemetente(membro.getValue().getValue().getContaRemetente());
-                    } else {
-                        try {
-                            System.out.println("Reiniciar Membro.");
-                            servidor.obterDespachante().callRemoteMethod(membro.getKey(), "desconectar", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
                 } else {
                     System.out.println("Membro com erro: " + membro.getKey());
                     membrosComErro.addAndGet(1);
-                }
-
-                if (membrosComErro.get() != 0){
-                    System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
-                    opcoes.setMode(ResponseMode.GET_NONE);
-                    opcoes.setTimeout(300);
                     try {
-                        servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class},opcoes);
+                        System.out.println("Atualiza Membro");
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
             });
+            if ((membrosComErro.get() > (membros.size() / 2))) {
+                System.out.println("Como não foram todos os membros que concordaram, a mudança será disfeita.");
+                opcoes.setMode(ResponseMode.GET_NONE);
+                opcoes.setTimeout(300);
+                try {
+                    servidor.obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class}, opcoes);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } catch (Exception e) {
             System.out.println("Erro ao realizar tranferencia: " + e.getMessage());
         }
@@ -257,9 +237,34 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
     }
 
     @Override
-    public List<Transferencia> extrato(String login) throws RemoteException {
+    public List<Transferencia> extrato(String token) throws RemoteException {
         System.out.println("Buscar Extrato");
-        return TransferenciaService.extrato(login);
+        if (!validarLogin(token)) {
+            return null;
+        }
+        List<Transferencia> transferencia = new ArrayList<>();
+        RequestOptions opcoes = new RequestOptions();
+        MethodCall methodCall = new MethodCall("extrato", new Object[]{TokenManager.decodeToken(token)}, new Class[]{String.class});
+        opcoes.setMode(ResponseMode.GET_ALL);
+        opcoes.setTimeout(3000);
+        try {
+            RspList<List<Transferencia>> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
+            resposta.entrySet().forEach(membro -> {
+                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                    transferencia.addAll(membro.getValue().getValue());
+                } else {
+                    try {
+                        System.out.println("Atualiza Membro");
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            System.out.println("Erro ao enviar saldo: " + e.getMessage());
+        }
+        return transferencia;
     }
 
     private boolean validarLogin(String token) {
