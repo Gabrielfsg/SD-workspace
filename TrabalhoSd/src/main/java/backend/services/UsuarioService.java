@@ -5,7 +5,9 @@ import comon.model.Usuario;
 
 import java.util.ArrayList;
 
-import static comon.utils.Senha.*;
+import static comon.utils.Senha.gerarHash;
+import static comon.utils.Senha.gerarSalt;
+import static comon.utils.Senha.validarSenha;
 
 public class UsuarioService {
 
