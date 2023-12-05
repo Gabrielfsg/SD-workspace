@@ -58,6 +58,7 @@ public class UsuarioService {
             String hashSenhaOriginal = gerarHash(senha, usuario.getSalt());
             usuario.setSenha(hashSenhaOriginal);
             usuario.salvarUsuario(usuario, usuario.listarTodos());
+            usuario.atualizarArquivo(String.valueOf(Integer.parseInt(usuario.lerArquivo()) + 1));
             return usuario;
         } else{
             throw new RuntimeException("Erro: Usuario não encontrado.");
