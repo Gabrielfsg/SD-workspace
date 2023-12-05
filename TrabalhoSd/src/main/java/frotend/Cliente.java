@@ -1,6 +1,7 @@
 package frotend;
 
 import backend.BancoAPI;
+import backend.auth.TokenManager;
 import comon.ConfiguracoesMulticast;
 import comon.model.Saldo;
 import comon.model.Transferencia;
@@ -21,7 +22,6 @@ public class Cliente implements Serializable {
 
     public static Scanner scanner = new Scanner(System.in);
     public static BancoAPI bancoAPI = null;
-
     public static void main(String[] args) {
         try {
             String addr = null;
@@ -39,7 +39,7 @@ public class Cliente implements Serializable {
     public static void primeiroMenu() {
         String opcaoDig = "";
         int opcao = 0;
-        Usuario resp;
+        String resp;
         String login = "";
         String senha = "";
 
@@ -56,19 +56,19 @@ public class Cliente implements Serializable {
                 if (opcao == 1) {
                     resp = login(login, senha);
                     System.out.println("resposta " + resp);
-                    if (resp.getLogin() !=null && resp.getSenha() != null) {
+                    if (resp != null) {
                         System.out.println("Login Feito com Sucesso.");
                         System.out.println("Redirecionando...");
                         menuJaLogado(resp);
-                    } else if (resp.getLogin() != null) {
-                        System.out.println("Usuario já logado em outro terminal");
                     } else {
                         System.out.println("Usuario ou senha incorretos");
                     }
                 } else if (opcao == 2) {
                     resp = criarConta(login, senha);
-                    if (resp.getLogin() != null) {
+                    if (resp != null) {
                         System.out.println("Usuário criado com Sucesso.");
+                    } else {
+                        System.out.println("Usuario já existe.");
                     }
                 } else if (opcao == 3) {
                     System.out.println("Saida feita com Sucesso. ");
@@ -85,7 +85,7 @@ public class Cliente implements Serializable {
         }
     }
 
-    public static void menuJaLogado(Usuario usuario) {
+    public static void menuJaLogado(String usuario) {
         String opcaoDig = "";
         int opcao = 0;
         Saldo saldo;
@@ -94,7 +94,7 @@ public class Cliente implements Serializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         while (true) {
             try {
-                System.out.println("### Bem vindo " + usuario.getLogin() + " ### \n" +
+                System.out.println("### Bem vindo " + TokenManager.decodeToken(usuario) + " ### \n" +
                         "1.Consultar Saldo. \n" +
                         "2.Fazer Transferência. \n" +
                         "3.Alterar Senha. \n" +
@@ -105,17 +105,17 @@ public class Cliente implements Serializable {
                 opcao = Integer.parseInt(opcaoDig);
 
                 if (opcao == 1) {
-                    saldo = consultarSaldo(usuario.getLogin());
+                    saldo = consultarSaldo(usuario);
                     if (saldo != null) {
-                        System.out.println("Usuario: " + usuario.getLogin());
+                        System.out.println("Usuario: " + TokenManager.decodeToken(usuario));
                         System.out.println("Saldo: " + saldo.getSaldo());
                     } else {
                         System.out.println("Erro ao consultar o saldo, usuario não existe na base de dados");
                     }
                 } else if (opcao == 2) {
                     Transferencia transferencia = new Transferencia();
-                    transferencia.setContaRemetente(usuario.getLogin());
-                    transferencia = fazerTransferencia(transferencia);
+                    transferencia.setContaRemetente((String) TokenManager.decodeToken(usuario));
+                    transferencia = fazerTransferencia(usuario, transferencia);
                     if (transferencia != null) {
                         String dataHoraFormatada = transferencia.getData().format(formatter);
                         System.out.println("Tranferência concluida com sucesso.");
@@ -125,12 +125,12 @@ public class Cliente implements Serializable {
                         System.out.println("Data e Hora: " + dataHoraFormatada);
                     }
                 } else if (opcao == 3) {
-                    resp = alterarSenha(usuario.getLogin(), senha);
+                    resp = alterarSenha(usuario, senha);
                     if (resp != null) {
                         System.out.println("Senha Alterada com Sucesso.");
                     }
                 } else if (opcao == 4) {
-                    List<Transferencia> extrato = extrato(usuario.getLogin());
+                    List<Transferencia> extrato = extrato(usuario);
                     extrato.forEach(transferencia -> {
                         String dataHoraFormatada = transferencia.getData().format(formatter);
                         System.out.println("################################################");
@@ -154,7 +154,7 @@ public class Cliente implements Serializable {
         }
     }
 
-    public static Usuario login(String login, String senha) {
+    public static String login(String login, String senha) {
         System.out.println("### LOGIN ### \n");
 
         System.out.println("Entre com o login: ");
@@ -173,7 +173,7 @@ public class Cliente implements Serializable {
     }
 
 
-    public static Usuario criarConta(String login, String senha) {
+    public static String criarConta(String login, String senha) {
         System.out.println("### CRIAR CONTA ### \n");
 
         System.out.println("Entre com o login: ");
@@ -181,15 +181,15 @@ public class Cliente implements Serializable {
 
         System.out.println("Entre com a senha: ");
         senha = scanner.nextLine();
-
+        String usuario = null;
         try {
-            return bancoAPI.criarConta(login, senha);
+            usuario = bancoAPI.criarConta(login, senha).getLogin();
         } catch (IOException e) {
             System.out.println("ERRO: " + e.getMessage());
         } catch (RuntimeException r) {
             System.out.println("ERRO: " + r.getMessage());
         }
-        return new Usuario();
+        return usuario;
     }
 
     public static Usuario alterarSenha(String login, String senha) {
@@ -228,7 +228,7 @@ public class Cliente implements Serializable {
         return null;
     }
 
-    public static Transferencia fazerTransferencia(Transferencia transferencia) {
+    public static Transferencia fazerTransferencia(String token, Transferencia transferencia) {
         String destinatario = "";
         System.out.println("### Consultar Saldo ### \n");
 
@@ -241,7 +241,7 @@ public class Cliente implements Serializable {
 
         transferencia.setData(LocalDateTime.now());
         try {
-            return bancoAPI.fazerTransferencia(transferencia);
+            return bancoAPI.fazerTransferencia(token, transferencia);
         } catch (IOException e) {
             System.out.println("ERRO: " + e.getMessage());
         } catch (RuntimeException r) {

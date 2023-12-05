@@ -11,15 +11,15 @@ import java.util.List;
 
 public interface BancoAPI extends Remote {
 
-    Usuario fazerLogin(String login, String senha) throws RemoteException;
+    String fazerLogin(String login, String senha) throws RemoteException;
 
     Usuario criarConta(String login, String senha) throws RemoteException;
 
-    Saldo consultarSaldo(String login) throws RemoteException;
+    Saldo consultarSaldo(String token) throws RemoteException;
 
-    Usuario alterarSenha(String login, String senha) throws IOException;
+    Usuario alterarSenha(String token, String senha) throws IOException;
 
-    Transferencia fazerTransferencia(Transferencia transferencia) throws RemoteException;
+    Transferencia fazerTransferencia(String token, Transferencia transferencia) throws RemoteException;
 
-    List<Transferencia> extrato(String login) throws RemoteException;
+    List<Transferencia> extrato(String token) throws RemoteException;
 }

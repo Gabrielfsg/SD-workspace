@@ -1,0 +1,7 @@
+[ {
+  "contaRemetente" : "daniel",
+  "contaDestino" : "admin",
+  "valor" : 100.0,
+  "data" : [ 2023, 12, 4, 22, 49, 20, 502307000 ],
+  "versaoBanco" : 0
+} ]

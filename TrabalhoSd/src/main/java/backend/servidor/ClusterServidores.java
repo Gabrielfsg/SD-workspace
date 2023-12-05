@@ -1,9 +1,9 @@
 package backend.servidor;
 
 import backend.Servidor;
+import backend.auth.TokenManager;
 import backend.services.TransferenciaService;
 import backend.services.UsuarioService;
-import comon.RMIServer;
 import comon.model.Estado;
 import comon.model.Saldo;
 import comon.model.Transferencia;
@@ -12,16 +12,23 @@ import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.jgroups.View;
-import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 import org.jgroups.blocks.Response;
 import org.jgroups.blocks.RpcDispatcher;
 import org.jgroups.blocks.locking.LockService;
 import org.jgroups.util.Util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
@@ -32,15 +39,15 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private LockService servicoTravas;
     private Servidor bancoServer;
 
-    private List<String> logados;
     final int TAMANHO_MINIMO_CLUSTER = 1;
+    private TokenManager tokenManager;
 
     private boolean souCordenador = false;
 
     public ClusterServidores() {
         try {
             this.bancoServer = new Servidor();
-            this.logados = new ArrayList<>();
+            this.tokenManager = new TokenManager();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -124,6 +131,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public void start() {
         try {
             this.channel = new JChannel("banco.xml").connect("banco");
+//            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
             channel.close();
@@ -203,24 +211,34 @@ public class ClusterServidores implements Receiver, RequestHandler {
         this.iniciarCanal();
     }
 
-    public Usuario fazerLogin(String login, String senha) {
+    public String fazerLogin(String login, String senha) {
         System.out.println("Realizar login: " + login);
-        Usuario user = new Usuario();
+        String token = null;
         Lock trava = this.servicoTravas.getLock(login);
         try {
             trava.lock();
-            user = UsuarioService.realizarLogin(login, senha);
-            this.logados.add(login);
-            System.out.println("adicionar logado");
+            UsuarioService.realizarLogin(login, senha);
+            token = tokenManager.generateToken(login);
+            System.out.println("token gerado " + token);
         } catch(Exception e){
             System.out.println("ERRO: " + e.getMessage());
         } finally {
             trava.unlock();
         }
-        return user;
+        return token;
     }
-    public Usuario criarConta(String login, String senha){
-        return UsuarioService.criarConta(login, senha);
+    public Usuario criarConta(String login, String senha) {
+        Usuario usuario = new Usuario();
+        Lock trava = this.servicoTravas.getLock(login);
+        try {
+            trava.lock();
+            usuario = UsuarioService.criarConta(login,senha);
+        } catch(Exception e){
+            System.out.println("ERRO: " + e.getMessage());
+        } finally {
+            trava.unlock();
+        }
+        return usuario;
     }
 
     public Saldo consultarSaldo(String login){
@@ -275,29 +293,14 @@ public class ClusterServidores implements Receiver, RequestHandler {
     }
 
 
-    public List<String> getLogados(){
-        System.out.println("Consultar logados: ");
-        Lock trava = this.servicoTravas.getLock("logados");
-        List<String> logados = new ArrayList<>();
-        try {
-            trava.lock();
-            logados = this.logados;
-        } catch(Exception e){
-            System.out.println("ERRO: " + e.getMessage());
-        } finally {
-            trava.unlock();
-        }
-        return logados;
-    }
-
     public void desfazMudancasParaOriginal(Estado estado) throws RemoteException {
         try {
-            File file = new File("transferencias.json");
+            File file = new File("TrabalhoSd/transferencias.json");
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getTransferencias());
             stream.flush();
             stream.close();
-            file = new File("usuario.json");
+            file = new File("TrabalhoSd/usuario.json");
             stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getUsuarios());
             stream.flush();

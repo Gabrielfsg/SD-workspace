@@ -9,9 +9,11 @@ import java.util.List;
 
 public class Usuario implements Serializable {
 
-    private static final String FILE_PATH = "usuario.json";
+//    private static final String FILE_PATH = "usuario.json";
+    private static final String FILE_PATH = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/usuario.json";
 
-    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
+    private static final String FILE_PATH_VERSAO = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/versaoBanco.txt";
+//    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
     private String login;
     private String senha;
 
