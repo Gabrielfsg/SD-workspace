@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 
 public class Transferencia implements Serializable {
 
-//    private static final String FILE_PATH = "transferencias.json";
-    private static final String FILE_PATH = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/transferencias.json";
+    private static final String FILE_PATH = "transferencias.json";
+//    private static final String FILE_PATH = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/transferencias.json";
 
-//    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
-    private static final String FILE_PATH_VERSAO = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/versaoBanco.txt";
+    private static final String FILE_PATH_VERSAO = "versaoBanco.txt";
+//    private static final String FILE_PATH_VERSAO = "/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/versaoBanco.txt";
     String contaRemetente;
     String contaDestino;
     Double valor;

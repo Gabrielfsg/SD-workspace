@@ -40,12 +40,12 @@ public class Estado implements Serializable {
 
 
     public Estado(int versaoBanco) throws IOException {
-        File file = new File("usuario.json");
+        File file = new File("TrabalhoSd/usuario.json");
 //        File file = new File("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/usuario.json");
         BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
         this.setUsuarios(stream.readAllBytes());
         stream.close();
-        file = new File("transferencias.json");
+        file = new File("TrabalhoSd/transferencias.json");
 //        file = new File("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/transferencias.json");
         stream = new BufferedInputStream(new FileInputStream(file));
         this.setTransferencias(stream.readAllBytes());

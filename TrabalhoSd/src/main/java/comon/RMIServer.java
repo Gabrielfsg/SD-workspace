@@ -40,7 +40,7 @@ public class RMIServer extends Thread {
                 if (ConfiguracoesMulticast.TOKEN_COORDENADOR.equals(getMessage(packet))) {
                     createRegistryIfNotExists();
 
-                    String stubMessage = String.format("rmi://%s/banco", InetAddress.getLocalHost().getHostAddress());
+                    String stubMessage = String.format("rmi://%s/banco", ip);
                     System.out.println("Retornando stub: " + stubMessage);
 
                     sendStubMessage(socket, groupAddress, stubMessage);

@@ -76,11 +76,11 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public void getState(OutputStream output) {
         try {
             Estado estado = new Estado();
-            File file = new File("usuario.json");
+            File file = new File("TrabalhoSd/usuario.json");
             BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
             estado.setUsuarios(stream.readAllBytes());
             stream.close();
-            file = new File("transferencias.json");
+            file = new File("TrabalhoSd/transferencias.json");
             stream = new BufferedInputStream(new FileInputStream(file));
             estado.setTransferencias(stream.readAllBytes());
             stream.close();
@@ -98,12 +98,12 @@ public class ClusterServidores implements Receiver, RequestHandler {
         try {
             Estado estado = (Estado) Util.objectFromStream(new DataInputStream(input));
 
-            File file = new File("usuario.json");
+            File file = new File("TrabalhoSd/usuario.json");
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getUsuarios());
             stream.flush();
             stream.close();
-            file = new File("transferencias.json");
+            file = new File("TrabalhoSd/transferencias.json");
             stream = new BufferedOutputStream(new FileOutputStream(file));
             estado.setTransferencias(estado.getTransferencias());
             stream.flush();
@@ -130,7 +130,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void start() {
         try {
-            this.channel = new JChannel("banco.xml").connect("banco");
+            this.channel = new JChannel("TrabalhoSd/banco.xml").connect("banco");
 //            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
             this.iniciarCanal();
             this.iniciarBanco();
