@@ -239,7 +239,6 @@ public class Cliente implements Serializable {
         System.out.println("Entre com o valor: ");
         transferencia.setValor(Double.valueOf(scanner.nextLine()));
 
-        transferencia.setData(LocalDateTime.now());
         try {
             return bancoAPI.fazerTransferencia(token, transferencia);
         } catch (IOException e) {

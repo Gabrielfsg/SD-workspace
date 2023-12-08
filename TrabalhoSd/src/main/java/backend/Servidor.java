@@ -84,7 +84,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     membrosComErro.addAndGet(1);
                     try {
                         System.out.println("Atualiza Membro");
-                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -125,7 +125,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                 } else {
                     try {
                         System.out.println("Atualiza Membro");
-                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -163,7 +163,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     membrosComErro.addAndGet(1);
                     try {
                         System.out.println("Atualiza Membro");
-                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -214,7 +214,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     membrosComErro.addAndGet(1);
                     try {
                         System.out.println("Atualiza Membro");
-                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -255,7 +255,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                 } else {
                     try {
                         System.out.println("Atualiza Membro");
-                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_FIRST, 2000));
+                        servidor.obterDespachante().callRemoteMethod(membro.getKey(), "atualiza", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

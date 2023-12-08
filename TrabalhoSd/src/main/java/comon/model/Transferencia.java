@@ -104,8 +104,9 @@ public class Transferencia implements Serializable {
             }
             List<Transferencia> transferencias = objectMapper.readValue(file, objectMapper.getTypeFactory().constructCollectionType(List.class, Transferencia.class));
             List<Transferencia> transferenciasFiltradas = transferencias.stream()
-                    .filter(transferencia -> transferencia.getContaRemetente().equals(login))
+                    .filter(transferencia -> transferencia.getContaRemetente().equals(login) || transferencia.getContaDestino().equals(login))
                     .collect(Collectors.toList());
+
 
             return transferenciasFiltradas;
         } catch (IOException e) {

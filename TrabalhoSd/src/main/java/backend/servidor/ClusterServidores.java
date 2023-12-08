@@ -9,9 +9,7 @@ import comon.model.Saldo;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 import org.jgroups.*;
-import org.jgroups.blocks.RequestHandler;
-import org.jgroups.blocks.Response;
-import org.jgroups.blocks.RpcDispatcher;
+import org.jgroups.blocks.*;
 import org.jgroups.blocks.locking.LockService;
 import org.jgroups.util.Util;
 
@@ -109,11 +107,11 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public void getState(OutputStream output) {
         try {
             Estado estado = new Estado();
-            File file = new File("TrabalhoSd/usuario.json");
+            File file = new File("usuario.json");
             BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file));
             estado.setUsuarios(stream.readAllBytes());
             stream.close();
-            file = new File("TrabalhoSd/transferencias.json");
+            file = new File("transferencias.json");
             stream = new BufferedInputStream(new FileInputStream(file));
             estado.setTransferencias(stream.readAllBytes());
             stream.close();
@@ -131,7 +129,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
         try {
             Estado estado = (Estado) Util.objectFromStream(new DataInputStream(input));
 
-            File file = new File("TrabalhoSd/usuario.json");
+            File file = new File("usuario.json");
             BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(file));
             stream.write(estado.getUsuarios());
             stream.flush();
@@ -176,16 +174,65 @@ public class ClusterServidores implements Receiver, RequestHandler {
         }
     }
 
-    private void sincronizar(){
-        while (channel.getView().getMembers().size() < 1){
+    private void sincronizar() throws IOException {
+        while (channel.getView().getMembers().size() < 3){
             Util.sleep(1000);
         }
 
-//        while (!estaSincronizado){
-//            Util.sleep(100);
-//        }
+        Address enderecoMaior = encontrarMaiorVersao();
+        Estado estado = new Estado(obterVersaoRemota(enderecoMaior));
+        List<Address> membros = channel.getView().getMembers();
+        membros.remove(enderecoMaior);
+        try {
+            obterDespachante().callRemoteMethods(membros, "desfazMudancasParaOriginal", new Object[]{estado}, new Class[]{Estado.class}, new RequestOptions(ResponseMode.GET_NONE, 2000));
+            obterDespachante().callRemoteMethods(membros, "atualizaSincronizado", null, null, new RequestOptions(ResponseMode.GET_NONE, 2000));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        while (!estaSincronizado){
+            Util.sleep(100);
+        }
+
         channel.getState();
         while (true) {
+        }
+    }
+
+    public void atualizaSincronizado(){
+        estaSincronizado = true;
+    }
+
+    public Address encontrarMaiorVersao() {
+        View view = channel.getView();
+        List<Address> membros = view.getMembers();
+
+        Address enderecoMaiorVersao = null;
+        int maiorVersao = Integer.MIN_VALUE;
+
+        for (Address membro : membros) {
+            if (!membro.equals(channel.getAddress())) {
+                try {
+                    int versaoRemota = obterVersaoRemota(membro);
+                    if (versaoRemota > maiorVersao) {
+                        maiorVersao = versaoRemota;
+                        enderecoMaiorVersao = membro;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return enderecoMaiorVersao;
+    }
+
+    private int obterVersaoRemota(Address enderecoRemoto) {
+        try {
+            return (int) obterDespachante().callRemoteMethod(enderecoRemoto, "lerArquivo", null, null,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Integer.MIN_VALUE;
         }
     }
 
@@ -211,10 +258,17 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private void iniciarBanco() {
         try {
 
+            while (this.channel.getView().size() < 1) {
+                Util.sleep(1000);
+            }
+
             if (souCoordenador()) {
                 this.bancoServer.bancoServerRmiStart();
             } else {
-                this.channel.getState(null, 10000);
+                this.channel.getState(null, 1000);
+            }
+
+            while (true) {
             }
         } catch (Exception erro) {
             // DEBUG
@@ -273,6 +327,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
         try {
             trava.lock();
             usuario = UsuarioService.criarConta(login,senha);
+            atualizarArquivo(String.valueOf(Integer.parseInt(lerArquivo()) + 1));
         } catch(Exception e){
             System.out.println("ERRO: " + e.getMessage());
         } finally {
@@ -302,6 +357,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
         try {
             trava.lock();
             usuario = UsuarioService.alterarSenha(login,senha);
+            atualizarArquivo(String.valueOf(Integer.parseInt(lerArquivo()) + 1));
         } catch(Exception e){
             System.out.println("ERRO: " + e.getMessage());
         } finally {
@@ -319,6 +375,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
             travaRemetente.lock();
             travaDestinatario.lock();
             transferenciaResp = TransferenciaService.fazerTransferencia(transferencia);
+            atualizarArquivo(String.valueOf(Integer.parseInt(lerArquivo()) + 1));
         } catch(Exception e){
             System.out.println("ERRO: " + e.getMessage());
         } finally {

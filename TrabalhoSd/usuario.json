@@ -1,0 +1,11 @@
+[ {
+  "login" : "admin",
+  "senha" : "f63cf36560c098d7c4d75291dc0cd213d7360c96b1b7d2d12abf14aa9b47741d",
+  "saldo" : 1900.0,
+  "salt" : "8ed750d49c1b9cb2019f8998b466bd40"
+}, {
+  "login" : "daniel",
+  "senha" : "e1d13c8f0534c0a2f2233139de29bf8a0081af133a3c44c40e7d35181e320232",
+  "saldo" : 100.0,
+  "salt" : "73e7d9cf2853849022cfef8a504af964"
+} ]

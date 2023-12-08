@@ -3,6 +3,7 @@ package backend.services;
 import comon.model.Transferencia;
 import comon.model.Usuario;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class TransferenciaService {
@@ -20,6 +21,7 @@ public class TransferenciaService {
                     destino.setSaldo(destino.getSaldo() + transferencia.getValor());
                     remetente.salvarUsuario(remetente, remetente.listarTodos());
                     destino.salvarUsuario(destino, destino.listarTodos());
+                    transferencia.setData(LocalDateTime.now());
                     transferencia.salvarTransferencia(transferencia);
                     System.out.println("Transferência Feita com Sucesso!");
                     return transferencia;
