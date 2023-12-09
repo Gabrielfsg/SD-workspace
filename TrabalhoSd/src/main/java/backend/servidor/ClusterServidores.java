@@ -176,7 +176,9 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     private void sincronizar() throws IOException {
         while (channel.getView().getMembers().size() < 3){
-            Util.sleep(1000);
+            if(channel.getView().getMembers().size() >= 3){
+                break;
+            }
         }
 
         Address enderecoMaior = encontrarMaiorVersao();
@@ -258,18 +260,12 @@ public class ClusterServidores implements Receiver, RequestHandler {
     private void iniciarBanco() {
         try {
 
-            while (this.channel.getView().size() < 1) {
-                Util.sleep(1000);
-            }
-
             if (souCoordenador()) {
                 this.bancoServer.bancoServerRmiStart();
             } else {
                 this.channel.getState(null, 1000);
             }
 
-            while (true) {
-            }
         } catch (Exception erro) {
             // DEBUG
             System.out.println("ERRO: Server " + erro.getMessage());
