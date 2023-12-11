@@ -26,8 +26,8 @@ public class Estado implements Serializable {
         return usuarios;
     }
 
-    public void setUsuarios(byte[] users) {
-        this.usuarios = users;
+    public void setUsuarios(byte[] usuarios) {
+        this.usuarios = usuarios;
     }
 
     public byte[] getTransferencias() {
