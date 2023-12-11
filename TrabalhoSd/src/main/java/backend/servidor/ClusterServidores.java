@@ -165,7 +165,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
             this.channel = new JChannel("banco.xml").connect("banco");
             this.iniciarCanal();
             if (this.souCoordenador()) {
-                souCordenador = true;
+                this.souCordenador = true;
             }
             this.iniciarBanco();
             this.sincronizar();

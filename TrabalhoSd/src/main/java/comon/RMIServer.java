@@ -62,10 +62,10 @@ public class RMIServer extends Thread {
 
     private DatagramPacket receivePacket(MulticastSocket socket) throws Exception {
         byte[] buffer = new byte[256];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+        DatagramPacket pacote = new DatagramPacket(buffer, buffer.length);
         System.out.println("Pedido stub em espera.");
-        socket.receive(packet);
-        return packet;
+        socket.receive(pacote);
+        return pacote;
     }
 
     private String getMessage(DatagramPacket packet) {
@@ -73,20 +73,20 @@ public class RMIServer extends Thread {
     }
 
     private void sendStubMessage(MulticastSocket socket, InetAddress groupAddress, String message) throws Exception {
-        byte[] bufferSend = message.getBytes();
-        DatagramPacket packet = new DatagramPacket(bufferSend, bufferSend.length, groupAddress, ConfiguracoesMulticast.port);
+        byte[] buffEnvio = message.getBytes();
+        DatagramPacket packet = new DatagramPacket(buffEnvio, buffEnvio.length, groupAddress, ConfiguracoesMulticast.port);
         socket.send(packet);
     }
 
     private void handleException(Exception e) {
         e.printStackTrace();
-        System.out.println("Erro rmiserver: " + e);
+        System.out.println("Erro, RMI-SERVER: " + e);
     }
 
     public static String buscarIP() {
         List<String> ips = new ArrayList<>();
 
-        System.out.println("---- Seleção de Interface de Rede ----");
+        System.out.println("#### IP'S ####");
 
         try {
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -117,7 +117,7 @@ public class RMIServer extends Thread {
 
         int op;
         do {
-            System.out.println("Escolha a interface de rede adequada: ");
+            System.out.println("Escolha o ip de acordo com a necessidade: ");
             op = new Scanner(System.in).nextInt();
 
             if (op < 0 || op >= ips.size()) {
@@ -126,7 +126,7 @@ public class RMIServer extends Thread {
 
         } while (op < 0 || op >= ips.size());
 
-        System.out.println("---------------------------------------");
+        System.out.println("###################################");
 
         return ips.get(op);
     }
