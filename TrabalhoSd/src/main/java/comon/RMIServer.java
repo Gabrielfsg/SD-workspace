@@ -41,7 +41,7 @@ public class RMIServer extends Thread {
                     createRegistryIfNotExists();
 
                     String stubMessage = String.format("rmi://%s/banco", ip);
-                    System.out.println("Retornando stub: " + stubMessage);
+                    System.out.println("Stub: " + stubMessage);
 
                     sendStubMessage(socket, groupAddress, stubMessage);
                 }
