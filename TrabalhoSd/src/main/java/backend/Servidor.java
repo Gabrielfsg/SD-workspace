@@ -76,7 +76,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                if (membro.getValue().wasReceived() || membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                     usuario.setSenha(membro.getValue().getValue().getSenha());
                     usuario.setLogin(membro.getValue().getValue().getLogin());
                 } else {
@@ -120,7 +120,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         try {
             RspList<Saldo> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                if (membro.getValue().wasReceived() || membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                     saldo.setSaldo(membro.getValue().getValue().getSaldo());
                 } else {
                     try {
@@ -156,7 +156,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                if (membro.getValue().wasReceived() || membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                     usuario.setSenha(membro.getValue().getValue().getSenha());
                 } else {
                     System.out.println("Membro com erro: " + membro.getKey());
@@ -204,7 +204,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toCollection(ArrayList::new));
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                if (membro.getValue().wasReceived() || membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                         tt.setData(membro.getValue().getValue().getData());
                         tt.setValor(membro.getValue().getValue().getValor());
                         tt.setContaDestino(membro.getValue().getValue().getContaDestino());
@@ -250,7 +250,7 @@ public class Servidor extends UnicastRemoteObject implements BancoAPI {
         try {
             RspList<List<Transferencia>> resposta = servidor.obterDespachante().callRemoteMethods(null, methodCall, opcoes);
             resposta.entrySet().forEach(membro -> {
-                if (membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
+                if (membro.getValue().wasReceived() || membro.getValue().wasReceived() && membro.getKey().equals(servidor.getAdress())) {
                     transferencia.addAll(membro.getValue().getValue());
                 } else {
                     try {

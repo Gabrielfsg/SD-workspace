@@ -38,8 +38,6 @@ public class RMIServer extends Thread {
                 System.out.println("Mensagem recebida: " + getMessage(packet));
 
                 if (ConfiguracoesMulticast.TOKEN_COORDENADOR.equals(getMessage(packet))) {
-                    createRegistryIfNotExists();
-
                     String stubMessage = String.format("rmi://%s/banco", ip);
                     System.out.println("Stub: " + stubMessage);
 
@@ -65,26 +63,13 @@ public class RMIServer extends Thread {
     private DatagramPacket receivePacket(MulticastSocket socket) throws Exception {
         byte[] buffer = new byte[256];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        System.out.println("Esperendo pedido de stub...");
+        System.out.println("Pedido stub em espera.");
         socket.receive(packet);
         return packet;
     }
 
     private String getMessage(DatagramPacket packet) {
         return new String(packet.getData(), 0, packet.getLength());
-    }
-
-    private Servidor createRegistryIfNotExists() throws Exception {
-        try {
-            LocateRegistry.createRegistry(1099);
-            System.out.println("Criando registry.");
-        } catch (Exception e) {
-            // Registry já criado
-        }
-
-        Servidor servidor = new Servidor();
-        Naming.rebind("rmi://localhost/banco", servidor);
-        return servidor;
     }
 
     private void sendStubMessage(MulticastSocket socket, InetAddress groupAddress, String message) throws Exception {

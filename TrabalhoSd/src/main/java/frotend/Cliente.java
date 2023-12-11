@@ -13,7 +13,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.*;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
@@ -24,11 +23,11 @@ public class Cliente implements Serializable {
     public static BancoAPI bancoAPI = null;
     public static void main(String[] args) {
         try {
-            String addr = null;
-            while (addr == null) {
-                addr = obterHostServidor();
+            String end = null;
+            while (end == null) {
+                end = obterHostServidor();
+                bancoAPI = (BancoAPI) Naming.lookup(end);
             }
-            bancoAPI = (BancoAPI) Naming.lookup(addr);
             primeiroMenu();
         } catch (Exception erro) {
             System.out.println("Erro ao iniciar o cliente: " + erro.getMessage());
@@ -252,22 +251,22 @@ public class Cliente implements Serializable {
     public static String obterHostServidor() {
 
         MulticastSocket socket = null;
-        InetAddress addr = null;
+        InetAddress end = null;
         String rmiAddr = null;
 
         try {
             socket = new MulticastSocket(ConfiguracoesMulticast.port);
-            addr = InetAddress.getByName(ConfiguracoesMulticast.ip);
-            socket.joinGroup(addr);
+            end = InetAddress.getByName(ConfiguracoesMulticast.ip);
+            socket.joinGroup(end);
 
             byte[] bufferSend = ConfiguracoesMulticast.TOKEN_COORDENADOR.getBytes();
-            DatagramPacket pedido = new DatagramPacket(bufferSend, bufferSend.length, addr, ConfiguracoesMulticast.port);
+            DatagramPacket pedido = new DatagramPacket(bufferSend, bufferSend.length, end, ConfiguracoesMulticast.port);
 
             while (true) {
                 System.out.println("Pedindo ip coordenador");
                 socket.send(pedido);
                 byte[] buffer = new byte[256];
-                DatagramPacket resposta = new DatagramPacket(buffer, buffer.length, addr, ConfiguracoesMulticast.port);
+                DatagramPacket resposta = new DatagramPacket(buffer, buffer.length, end, ConfiguracoesMulticast.port);
                 socket.receive(resposta);
                 String msg = new String(resposta.getData(), 0, resposta.getLength());
                 System.out.println("resposta " + msg);
@@ -284,7 +283,7 @@ public class Cliente implements Serializable {
             e.printStackTrace();
         } finally {
             try {
-                socket.leaveGroup(addr);
+                socket.leaveGroup(end);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
