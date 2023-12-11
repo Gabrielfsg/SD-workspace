@@ -279,7 +279,7 @@ public class Cliente implements Serializable {
             }
 
         } catch (Exception e) {
-            System.out.println("Erro ao receber stub: " + e.getMessage());
+            System.out.println("Erro na chegada so stub: " + e.getMessage());
             e.printStackTrace();
         } finally {
             try {
