@@ -1,11 +1,11 @@
 [ {
   "login" : "admin",
   "senha" : "32d92c732d335547a5974ac5408c35c91bac5667f0c41d39170e04a9cf31f21d",
-  "saldo" : 173.0,
+  "saldo" : 284.0,
   "salt" : "1dfe69df8d101e103bf928ad332f0d12"
 }, {
   "login" : "daniel",
   "senha" : "3850c16c8888ba1b5e35e41f199735341c84d92275251e5f61ded5f2e2d3e38a",
-  "saldo" : 1827.0,
+  "saldo" : 1716.0,
   "salt" : "deded1d3f5e82e0687d063b9722c7dd5"
 } ]
