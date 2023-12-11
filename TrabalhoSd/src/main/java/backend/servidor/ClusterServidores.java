@@ -55,7 +55,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
 
     public void viewAccepted(View view) {
         System.out.println("View Start");
-        if (souCoordenador()) {
+        if (this.souCoordenador()) {
             this.souCordenador = true;
             try {
                 System.out.println("Novo Cordenador!");
@@ -64,6 +64,7 @@ public class ClusterServidores implements Receiver, RequestHandler {
                 throw new RuntimeException(e);
             }
         } else {
+            this.souCordenador = false;
             this.getEstado();
         }
     }
@@ -162,8 +163,10 @@ public class ClusterServidores implements Receiver, RequestHandler {
     public void start() {
         try {
             this.channel = new JChannel("banco.xml").connect("banco");
-//            this.channel = new JChannel("/home/daniel/Documentos/sd/SD-workspace/TrabalhoSd/banco.xml").connect("banco");
             this.iniciarCanal();
+            if (this.souCoordenador()) {
+                souCordenador = true;
+            }
             this.iniciarBanco();
             this.sincronizar();
             channel.close();
