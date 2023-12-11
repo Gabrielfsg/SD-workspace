@@ -295,12 +295,6 @@ public class ClusterServidores implements Receiver, RequestHandler {
         return this.despachante;
     }
 
-
-    public void reiniciarMembro(){
-        this.channel.disconnect();
-        this.iniciarCanal();
-    }
-
     public String fazerLogin(String login, String senha) {
         System.out.println("Realizar login: " + login);
         String token = null;
